@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import com.dilaraalk.product.dto.ProductRequestDto;
 import com.dilaraalk.product.dto.ProductResponseDto;
 
+
 public interface IProductService {
 	
 	ProductResponseDto createProduct(ProductRequestDto productRequestDto);

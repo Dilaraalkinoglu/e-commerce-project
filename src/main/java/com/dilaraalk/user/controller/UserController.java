@@ -6,18 +6,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dilaraalk.common.base.BaseController;
 import com.dilaraalk.user.entity.User;
 
 
 
 @RestController
 @RequestMapping("/api/user")
-public class UserController{      
+public class UserController extends BaseController{      
 
 	@GetMapping("/profile")
 	public ResponseEntity<String> getProfile(Authentication authentication){
 		User user = (User) authentication.getPrincipal();
-		return ResponseEntity.ok("Merhaba " + user.getUserName() + ", profil bilgilerin burada!");
+        return ok("Merhaba " + user.getUserName() + ", profil bilgilerin burada!");
 	}
 	
 	

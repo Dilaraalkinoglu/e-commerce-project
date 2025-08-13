@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.dilaraalk.common.exception.ProductListEmptyException;
+import com.dilaraalk.common.exception.ProductNotFoundException;
 import com.dilaraalk.product.dto.ProductRequestDto;
 import com.dilaraalk.product.dto.ProductResponseDto;
 import com.dilaraalk.product.entity.Product;
@@ -28,21 +30,8 @@ public class ProductServiceImpl implements IProductService{
 	@Override
 	public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
 		//Dto'dan alıp entity'e dönüştürüp veritabanına kaydettik
-		Product product = new Product();
-		product.setName(productRequestDto.getName());
-		product.setPrice(productRequestDto.getPrice());
-		product.setStock(productRequestDto.getStock());
-		
-		Product savedProduct = productRepository.save(product);
-		
-		//Entity dto dönüşümü 
-		ProductResponseDto responseDto = new ProductResponseDto();
-		responseDto.setId(savedProduct.getId());
-		responseDto.setName(savedProduct.getName());
-		responseDto.setPrice(savedProduct.getPrice());
-		responseDto.setStock(savedProduct.getStock());
-		
-		return responseDto;
+		Product savedProduct = productRepository.save(toEntity(productRequestDto));
+		return toDto(savedProduct);
 	}
 
 	@Override
@@ -50,22 +39,14 @@ public class ProductServiceImpl implements IProductService{
 		
 		
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Id'si " + id + " olan ürün bulunamadı!"));
+				.orElseThrow(() -> new ProductNotFoundException(id));
 		
 		
 		product.setName(productRequestDto.getName());
 		product.setPrice(productRequestDto.getPrice());
 		product.setStock(productRequestDto.getStock());
 				
-		Product updatedProduct = productRepository.save(product);
-				
-		ProductResponseDto responseDto = new ProductResponseDto();
-		responseDto.setId(updatedProduct.getId());
-		responseDto.setName(updatedProduct.getName());
-	    responseDto.setPrice(updatedProduct.getPrice());
-		responseDto.setStock(updatedProduct.getStock());
-				
-	    return responseDto;
+	    return toDto(productRepository.save(product));
 		
 	}
 
@@ -73,7 +54,7 @@ public class ProductServiceImpl implements IProductService{
 	public void deleteProduct(Long id) {
 		
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Id'si " + id + " olan ürün bulunamadı!"));
+				.orElseThrow(() -> new ProductNotFoundException(id));
 		
 		productRepository.delete(product);
 	}
@@ -82,17 +63,9 @@ public class ProductServiceImpl implements IProductService{
 	public ProductResponseDto getProductById(Long id) {
 
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("Id'si " + id + " olan ürün bulunamadı!"));
-		
-		//Product dto dönüşümü
-		ProductResponseDto responseDto = new ProductResponseDto();
-		responseDto.setId(product.getId());
-		responseDto.setName(product.getName());
-		responseDto.setPrice(product.getPrice());
-		responseDto.setStock(product.getStock());
-	
+				.orElseThrow(() -> new ProductNotFoundException(id));
 
-		return responseDto;
+		return toDto(product);
 	}
 
 	@Override
@@ -101,37 +74,38 @@ public class ProductServiceImpl implements IProductService{
 		List<Product> productList = productRepository.findAll();
 		
 		if (productList.isEmpty()) {
-			throw new RuntimeException("Hiç ürün bulunamadı!");
+			throw new ProductListEmptyException();
 		}
 		
-		List<ProductResponseDto> responseList = productList.stream()
-				.map(product -> {
-					ProductResponseDto responseDto = new ProductResponseDto();
-					responseDto.setId(product.getId());
-					responseDto.setName(product.getName());
-					responseDto.setPrice(product.getPrice());
-					responseDto.setStock(product.getStock());
-					return responseDto;
-				})
-				.collect(Collectors.toList());
-		
-		
-		return responseList;
+		return productList.stream().map(this::toDto).collect(Collectors.toList());
 	}
 
 
 	@Override
 	public Page<ProductResponseDto> getAllProductsPaginated(Pageable pageable) {
-		 return productRepository.findAll(pageable)
-		            .map(product -> {
-		                ProductResponseDto dto = new ProductResponseDto();
-		                dto.setId(product.getId());
-		                dto.setName(product.getName());
-		                dto.setPrice(product.getPrice());
-		                dto.setStock(product.getStock());
-		                return dto;
-		            });
+		 return productRepository.findAll(pageable).map(this::toDto);
 	}
+	
+	//Entity dto dönüşümü 
+	private ProductResponseDto toDto(Product product){
+		ProductResponseDto dto = new ProductResponseDto();
+		dto.setId(product.getId());
+		dto.setName(product.getName());
+		dto.setPrice(product.getPrice());
+		dto.setStock(product.getStock());
+		return dto;
+	}
+	
+	//Dto entity dönüşümü 
+	private Product toEntity(ProductRequestDto dto) {
+		Product product = new Product();
+		product.setName(dto.getName());
+		product.setPrice(dto.getPrice());
+		product.setStock(dto.getStock());
+		return product;
+	}
+	
+	
 
 
 }
