@@ -1,5 +1,7 @@
 package com.dilaraalk.product.dto;
 
+import java.util.List;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
@@ -15,5 +17,8 @@ public class ProductRequestDto {
 	
 	@PositiveOrZero(message = "Stok negatif olamaz!")
 	private int stock;
+	
+	//ürün eklerken hangi kategorilere ait olacak 
+	private List<Long> categoryIds;
 
 }

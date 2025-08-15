@@ -1,5 +1,7 @@
 package com.dilaraalk.product.service.impl;
 
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.dilaraalk.category.entity.Category;
+import com.dilaraalk.category.repository.CategoryRepository;
 import com.dilaraalk.common.exception.ProductListEmptyException;
 import com.dilaraalk.common.exception.ProductNotFoundException;
 import com.dilaraalk.product.dto.ProductRequestDto;
@@ -19,18 +23,22 @@ import com.dilaraalk.product.service.IProductService;
 @Service
 public class ProductServiceImpl implements IProductService{
 	
-	
 	private final ProductRepository productRepository;
 	
-	public ProductServiceImpl(ProductRepository productRepository) {
+	private final CategoryRepository categoryRepository;
+	
+	public ProductServiceImpl(ProductRepository productRepository,
+			CategoryRepository categoryRepository) {
 		this.productRepository = productRepository;
+		this.categoryRepository = categoryRepository;
 	}
 	
 
 	@Override
 	public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
+	    Product product = toEntity(productRequestDto);
 		//Dto'dan alıp entity'e dönüştürüp veritabanına kaydettik
-		Product savedProduct = productRepository.save(toEntity(productRequestDto));
+		Product savedProduct = productRepository.save(product);
 		return toDto(savedProduct);
 	}
 
@@ -46,6 +54,14 @@ public class ProductServiceImpl implements IProductService{
 		product.setPrice(productRequestDto.getPrice());
 		product.setStock(productRequestDto.getStock());
 				
+	    // Kategori ilişkisini güncelle
+		if (productRequestDto.getCategoryIds() != null) {
+		    product.setCategories(
+		        new HashSet<>(categoryRepository.findAllById(productRequestDto.getCategoryIds()))
+		    );
+		}
+
+		
 	    return toDto(productRepository.save(product));
 		
 	}
@@ -93,16 +109,36 @@ public class ProductServiceImpl implements IProductService{
 		dto.setName(product.getName());
 		dto.setPrice(product.getPrice());
 		dto.setStock(product.getStock());
+		
+
+        if (product.getCategories() != null) {
+            dto.setCategories(
+                product.getCategories()
+                       .stream()
+                       .map(Category::getName)
+                       .collect(Collectors.toList())
+            );
+        } else {
+            dto.setCategories(List.of());
+        }
 		return dto;
 	}
 	
 	//Dto entity dönüşümü 
 	private Product toEntity(ProductRequestDto dto) {
-		Product product = new Product();
-		product.setName(dto.getName());
-		product.setPrice(dto.getPrice());
-		product.setStock(dto.getStock());
-		return product;
+	    Product product = new Product();
+	    product.setName(dto.getName());
+	    product.setPrice(dto.getPrice());
+	    product.setStock(dto.getStock());
+
+	    if (dto.getCategoryIds() != null) {
+	        product.setCategories(
+	            new HashSet<>(categoryRepository.findAllById(dto.getCategoryIds()))
+	        );
+	    } else {
+	        product.setCategories(new HashSet<>());
+	    }
+	    return product;
 	}
 	
 	
