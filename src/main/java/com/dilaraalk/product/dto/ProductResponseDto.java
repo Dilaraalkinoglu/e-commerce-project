@@ -17,5 +17,7 @@ public class ProductResponseDto {
 	
 	//ürünle ilişkili kategorilerin isimleri
 	private List<String> categories;
+	
+	private List<ProductImageDto> images;
 
 }

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -54,5 +55,12 @@ public class ProductController extends BaseController {
     @GetMapping
     public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
         return ok(productService.getAllProducts());
+    }
+    
+    @PostMapping("/{id}/images")
+    public ResponseEntity<ProductResponseDto> uploadProductImages(
+    		@PathVariable Long id,
+    		@RequestParam("files") MultipartFile[] files) {
+    	return ok(productService.uploadProductImages(id,files));
     }
 }

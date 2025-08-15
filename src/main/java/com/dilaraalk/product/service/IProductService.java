@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.dilaraalk.product.dto.ProductRequestDto;
 import com.dilaraalk.product.dto.ProductResponseDto;
@@ -22,6 +23,8 @@ public interface IProductService {
 	List<ProductResponseDto> getAllProducts();
 
 	Page<ProductResponseDto> getAllProductsPaginated(Pageable pageable);
+
+	ProductResponseDto uploadProductImages(Long productId, MultipartFile[] files);
 
 	
 	
