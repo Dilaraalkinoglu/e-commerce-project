@@ -1,5 +1,6 @@
 package com.dilaraalk.product.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import lombok.Data;
@@ -11,7 +12,7 @@ public class ProductResponseDto {
 	
 	private String name;
 	
-	private double price;
+	private BigDecimal price;
 	
 	private int stock;
 	

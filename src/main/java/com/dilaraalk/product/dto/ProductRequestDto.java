@@ -1,5 +1,6 @@
 package com.dilaraalk.product.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +14,7 @@ public class ProductRequestDto {
 	private String name;
 	
 	@PositiveOrZero(message = "Fiyat negatif olamaz!")
-	private double price;
+	private BigDecimal price;
 	
 	@PositiveOrZero(message = "Stok negatif olamaz!")
 	private int stock;

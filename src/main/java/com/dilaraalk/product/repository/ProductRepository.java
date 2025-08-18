@@ -6,4 +6,6 @@ import com.dilaraalk.product.entity.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long>{
 
+	boolean existsBySlug(String slug);
+
 }

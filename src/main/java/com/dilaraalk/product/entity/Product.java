@@ -1,5 +1,6 @@
 package com.dilaraalk.product.entity;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,43 +35,43 @@ import lombok.ToString;
 @NoArgsConstructor
 public class Product {
 
-	
-	@Id
-	@Column(name = "id")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@EqualsAndHashCode.Include
-	private Long id;
-	
-	@ToString.Include
-	@Column(name = "product_name" , nullable = false)
-	private String name;
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    private Long id;
 
-	@Column(name = "product_price" , nullable = false)
-	private double price;
-	
-	@Column(name = "product_stock" , nullable = false)
-	private int stock;
-	
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "product_categories",
-			   joinColumns = @JoinColumn(name = "product_id"),
-			   inverseJoinColumns = @JoinColumn(name = "category_id")
-	)
-	@ToString.Exclude
-	private Set<Category> categories = new HashSet<>();
-	
-	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-	@ToString.Exclude
-	private Set<ProductImage> images = new HashSet<>();
-	
-	  public void addImage(ProductImage img) {
-		    images.add(img);
-		    img.setProduct(this);
-	  }
-	  public void removeImage(ProductImage img) {
-		    images.remove(img);
-		    img.setProduct(null);
-      }
-	
-	
+    @ToString.Include
+    @Column(name = "product_name", nullable = false)
+    private String name;
+
+    @Column(name = "product_price", nullable = false, precision = 19, scale = 2)
+    private BigDecimal price;
+
+    @Column(name = "product_stock", nullable = false)
+    private int stock;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "product_categories",
+               joinColumns = @JoinColumn(name = "product_id"),
+               inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @ToString.Exclude
+    private Set<Category> categories = new HashSet<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private Set<ProductImage> images = new HashSet<>();
+
+    public void addImage(ProductImage img) {
+        images.add(img);
+        img.setProduct(this);
+    }
+
+    public void removeImage(ProductImage img) {
+        images.remove(img);
+        img.setProduct(null);
+    }
+
+    @Column(nullable = false, unique = true)
+    private String slug;
 }

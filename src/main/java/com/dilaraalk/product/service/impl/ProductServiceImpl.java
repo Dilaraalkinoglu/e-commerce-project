@@ -21,6 +21,7 @@ import com.dilaraalk.category.entity.Category;
 import com.dilaraalk.category.repository.CategoryRepository;
 import com.dilaraalk.common.exception.ProductListEmptyException;
 import com.dilaraalk.common.exception.ProductNotFoundException;
+import com.dilaraalk.common.util.SlugUtil;
 import com.dilaraalk.product.dto.ProductImageDto;
 import com.dilaraalk.product.dto.ProductRequestDto;
 import com.dilaraalk.product.dto.ProductResponseDto;
@@ -47,6 +48,12 @@ public class ProductServiceImpl implements IProductService{
 	@Override
 	public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
 	    Product product = toEntity(productRequestDto);
+	   
+        // Slug üret ve benzersizliğini kontrol et
+        String slug = SlugUtil.generateUniqueSlug(productRequestDto.getName(), productRepository::existsBySlug);
+        product.setSlug(slug);
+	    
+	    
 	    // DTO'dan gelen kategori ID'lerini alıp var mı diye kontrol et
 	    if (productRequestDto.getCategoryIds() != null && !productRequestDto.getCategoryIds().isEmpty()) {
 	        product.setCategories(new HashSet<>(
@@ -70,6 +77,10 @@ public class ProductServiceImpl implements IProductService{
 		product.setName(productRequestDto.getName());
 		product.setPrice(productRequestDto.getPrice());
 		product.setStock(productRequestDto.getStock());
+		
+        // Slug’ı yeniden üret
+        String slug = SlugUtil.generateUniqueSlug(productRequestDto.getName(), productRepository::existsBySlug);
+        product.setSlug(slug);
 				
 	    // Kategori ilişkisini güncelle
 		if (productRequestDto.getCategoryIds() != null) {
@@ -192,7 +203,7 @@ public class ProductServiceImpl implements IProductService{
 
 		        product.addImage(image); 
 			} catch (IOException e) {
-				throw new RuntimeException("Dosya yüklenirken hata oluştur: " + file.getOriginalFilename(),e);
+				throw new RuntimeException("Dosya yüklenirken hata oluştu: " + file.getOriginalFilename(),e);
 			}
 		}
 		
