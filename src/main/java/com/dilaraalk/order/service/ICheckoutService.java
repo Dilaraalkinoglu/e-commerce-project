@@ -6,6 +6,6 @@ import com.dilaraalk.user.entity.User;
 
 public interface ICheckoutService {
 	
-	CheckoutResponseDto checkout(User user, CheckoutRequestDto request);
+	CheckoutResponseDto checkout(User user, CheckoutRequestDto request, String idempotencyKey);
 
 }
