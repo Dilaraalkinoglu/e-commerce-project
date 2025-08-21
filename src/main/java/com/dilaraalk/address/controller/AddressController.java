@@ -19,6 +19,11 @@ import com.dilaraalk.address.service.IAddressService;
 import com.dilaraalk.common.base.BaseController;
 import com.dilaraalk.user.service.impl.CustomUserDetails;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -30,12 +35,23 @@ public class AddressController extends BaseController{
     private final IAddressService addressService;
 
     // tüm kullanıcı adreslerini listeler
+    @Operation(summary = "Kullanıcının adreslerini getir", description = "Giriş yapmış kullanıcının kayıtlı adreslerini listeler.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Adresler başarıyla getirildi"),
+        @ApiResponse(responseCode = "401", description = "Yetkisiz erişim, JWT gerekli")
+    })
     @GetMapping
     public ResponseEntity<List<AddressResponseDto>> getAddresses(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ok(addressService.getAddresses(userDetails.getId()));
     }
 
     // yeni adres ekler
+    @Operation(summary = "Yeni adres ekle", description = "Giriş yapmış kullanıcıya yeni bir adres ekler.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Adres başarıyla eklendi"),
+        @ApiResponse(responseCode = "400", description = "Geçersiz istek"),
+        @ApiResponse(responseCode = "401", description = "Yetkisiz erişim, JWT gerekli")
+    })
     @PostMapping
     public ResponseEntity<AddressResponseDto> addAddress(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                          @Valid @RequestBody AddressRequestDto request) {
@@ -43,6 +59,13 @@ public class AddressController extends BaseController{
     }
 
     // mevcut adresi günceller
+    @Operation(summary = "Adres güncelle", description = "Belirtilen ID'ye sahip adresi günceller.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Adres başarıyla güncellendi"),
+        @ApiResponse(responseCode = "400", description = "Geçersiz istek"),
+        @ApiResponse(responseCode = "401", description = "Yetkisiz erişim, JWT gerekli"),
+        @ApiResponse(responseCode = "404", description = "Adres bulunamadı")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<AddressResponseDto> updateAddress(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                             @PathVariable Long id,
@@ -51,6 +74,12 @@ public class AddressController extends BaseController{
     }
 
     // adresi siler
+    @Operation(summary = "Adres sil", description = "Belirtilen ID'ye sahip adresi siler.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "Adres başarıyla silindi"),
+        @ApiResponse(responseCode = "401", description = "Yetkisiz erişim, JWT gerekli"),
+        @ApiResponse(responseCode = "404", description = "Adres bulunamadı")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAddress(@AuthenticationPrincipal CustomUserDetails userDetails,
                                               @PathVariable Long id) {
@@ -58,4 +87,6 @@ public class AddressController extends BaseController{
         return ResponseEntity.noContent().build();
     }
 	
+    
+    
 }

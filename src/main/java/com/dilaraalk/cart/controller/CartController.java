@@ -18,6 +18,9 @@ import com.dilaraalk.user.entity.User;
 import com.dilaraalk.user.service.IUserService;
 import com.dilaraalk.user.service.impl.CustomUserDetails;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -37,6 +40,12 @@ public class CartController extends BaseController {
     }
 
     // POST /api/carts/items → Sepete ürün ekle
+    @Operation(summary = "Sepete ürün ekle", description = "Kullanıcının sepetine belirtilen ürünü ekler.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Ürün başarıyla sepete eklendi"),
+        @ApiResponse(responseCode = "400", description = "Geçersiz istek veya stok yetersiz"),
+        @ApiResponse(responseCode = "401", description = "Yetkisiz erişim, JWT gerekli")
+    })
     @PostMapping("/items")
     public ResponseEntity<CartResponseDto> addItem(
             @AuthenticationPrincipal CustomUserDetails userDetails,
