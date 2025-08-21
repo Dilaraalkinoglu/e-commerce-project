@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.dilaraalk.product.dto.ProductRequestDto;
 import com.dilaraalk.product.dto.ProductResponseDto;
+import com.dilaraalk.product.dto.ProductSearchRequest;
 
 
 public interface IProductService {
@@ -26,6 +27,7 @@ public interface IProductService {
 
 	ProductResponseDto uploadProductImages(Long productId, MultipartFile[] files);
 
+	Page<ProductResponseDto> searchProducts(ProductSearchRequest request);
 	
 	
 	

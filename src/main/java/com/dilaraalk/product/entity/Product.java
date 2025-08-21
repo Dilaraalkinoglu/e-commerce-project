@@ -1,8 +1,11 @@
 package com.dilaraalk.product.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import com.dilaraalk.category.entity.Category;
 
@@ -74,4 +77,12 @@ public class Product {
 
     @Column(nullable = false, unique = true)
     private String slug;
+    
+    
+    @Column(name = "created_at",nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+  
+
 }

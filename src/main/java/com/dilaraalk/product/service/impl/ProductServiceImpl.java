@@ -13,7 +13,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,10 +28,12 @@ import com.dilaraalk.common.util.SlugUtil;
 import com.dilaraalk.product.dto.ProductImageDto;
 import com.dilaraalk.product.dto.ProductRequestDto;
 import com.dilaraalk.product.dto.ProductResponseDto;
+import com.dilaraalk.product.dto.ProductSearchRequest;
 import com.dilaraalk.product.entity.Product;
 import com.dilaraalk.product.entity.ProductImage;
 import com.dilaraalk.product.repository.ProductRepository;
 import com.dilaraalk.product.service.IProductService;
+import com.dilaraalk.product.specification.ProductSpecification;
 
 
 @Service
@@ -209,6 +214,24 @@ public class ProductServiceImpl implements IProductService{
 		
 		Product saved = productRepository.save(product);
 		return toDto(saved);
+	}
+
+
+	@Override
+	public Page<ProductResponseDto> searchProducts(ProductSearchRequest request) {
+		
+		//pageable 
+		Sort sort = Sort.by(
+				request.getDirection().equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC,
+				request.getSortBy()
+				);
+		Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+		
+		// specification ile filtreleme
+		Specification<Product> spec = ProductSpecification.getProducts(request);
+		
+		return productRepository.findAll(spec,pageable)
+				.map(this::toDto);
 	}
 	
 	

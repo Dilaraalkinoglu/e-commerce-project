@@ -3,6 +3,7 @@ package com.dilaraalk.product.controller;
 import com.dilaraalk.common.base.BaseController;
 import com.dilaraalk.product.dto.ProductRequestDto;
 import com.dilaraalk.product.dto.ProductResponseDto;
+import com.dilaraalk.product.dto.ProductSearchRequest;
 import com.dilaraalk.product.service.IProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,11 @@ import java.util.List;
 public class ProductController extends BaseController {
 
     private final IProductService productService;
+    
+    @GetMapping("/search")
+    public ResponseEntity<Page<ProductResponseDto>> searchProducts(ProductSearchRequest request){
+    	return ok(productService.searchProducts(request));
+    }
 
     @GetMapping("/paginated")
     public Page<ProductResponseDto> getAllProductsPaginated(
