@@ -1,8 +1,9 @@
-package com.dilaraalk.order.entity;
+package com.dilaraalk.address.entity;
 
 import com.dilaraalk.user.entity.User;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,28 +17,34 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "addresses")
+@Table(name = "user_addresses")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Address {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private String street;
-	
-	private String city;
-	
-	private String country;
-	
-	private String zipCode;
-	
-	@ManyToOne
-	@JoinColumn(name = "user_id")
-	private User user;
+    private String title;     
+    
+    private String addressLine;
+    
+    private String city;
+    
+    private String state;
+    
+    private String postalCode;
+    
+    private String country;
 
+    private boolean defaultAddress;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+    
 }

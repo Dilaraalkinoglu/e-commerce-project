@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.dilaraalk.address.entity.Address;
 import com.dilaraalk.user.entity.User;
 
 import jakarta.persistence.CascadeType;

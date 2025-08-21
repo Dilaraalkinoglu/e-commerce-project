@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.dilaraalk.address.dto.AddressResponseDto;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +27,6 @@ public class CheckoutResponseDto {
 	
 	private List<OrderItemDto> items;
 	
-	private AddressDto address;
+	private AddressResponseDto address;
 
 }

@@ -8,18 +8,18 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.dilaraalk.address.dto.AddressResponseDto;
+import com.dilaraalk.address.entity.Address;
+import com.dilaraalk.address.repository.AddressRepository;
 import com.dilaraalk.cart.entity.Cart;
 import com.dilaraalk.cart.repository.CartRepository;
-import com.dilaraalk.order.dto.AddressDto;
 import com.dilaraalk.order.dto.CheckoutRequestDto;
 import com.dilaraalk.order.dto.CheckoutResponseDto;
 import com.dilaraalk.order.dto.OrderItemDto;
-import com.dilaraalk.order.entity.Address;
 import com.dilaraalk.order.entity.Order;
 import com.dilaraalk.order.entity.OrderItem;
 import com.dilaraalk.order.entity.OrderStatus;
 import com.dilaraalk.order.entity.Payment;
-import com.dilaraalk.order.repository.AddressRepository;
 import com.dilaraalk.order.repository.OrderItemRepository;
 import com.dilaraalk.order.repository.OrderRepository;
 import com.dilaraalk.order.repository.PaymentRepository;
@@ -109,7 +109,7 @@ public class CheckoutServiceImpl implements ICheckoutService{
 		orderRepository.save(order);
 		
 		//fake ödeme
-		String paymentId = paymentService.processPayment(order.getId(), request.getPaymentMethod());
+		paymentService.processPayment(order.getId(), request.getPaymentMethod());
 		Payment payment = Payment.builder()
 				.order(order)
 				.amount(total)
@@ -146,12 +146,16 @@ public class CheckoutServiceImpl implements ICheckoutService{
 				.collect(Collectors.toList());
 		
 		Address address = order.getAddress();
-		AddressDto addressDto = AddressDto.builder()
-				.id(address.getId())
-				.street(address.getStreet())
-				.city(address.getCity())
-				.zipCode(address.getZipCode())
-				.build();
+		AddressResponseDto addressDto = AddressResponseDto.builder()
+		        .id(address.getId())
+		        .title(address.getTitle())
+		        .addressLine(address.getAddressLine())
+		        .city(address.getCity())
+		        .state(address.getState())
+		        .postalCode(address.getPostalCode())
+		        .country(address.getCountry())
+		        .build();
+
 		
 		return CheckoutResponseDto.builder()
 				.orderId(order.getId())

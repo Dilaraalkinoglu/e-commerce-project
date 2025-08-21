@@ -13,6 +13,8 @@ import com.dilaraalk.order.dto.CheckoutRequestDto;
 import com.dilaraalk.order.dto.CheckoutResponseDto;
 import com.dilaraalk.order.service.ICheckoutService;
 import com.dilaraalk.user.entity.User;
+import com.dilaraalk.user.service.IUserService;
+import com.dilaraalk.user.service.impl.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,13 +24,17 @@ import lombok.RequiredArgsConstructor;
 public class CheckoutController extends BaseController{
 	
 	private final ICheckoutService checkoutService;
+	private final IUserService userService;
 	
 	@PostMapping
-	public ResponseEntity<CheckoutResponseDto> checkout(@AuthenticationPrincipal User user,
-			@RequestBody CheckoutRequestDto request,
-			@RequestHeader(value = "Idempotency-Key" , required = false) String idempotencyKey){
-		CheckoutResponseDto resp = checkoutService.checkout(user, request, idempotencyKey);
-		return created(resp);
+	public ResponseEntity<CheckoutResponseDto> checkout(@AuthenticationPrincipal CustomUserDetails userDetails,
+	        @RequestBody CheckoutRequestDto request,
+	        @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
+	    
+	    User user = userService.findById(userDetails.getId());
+	    CheckoutResponseDto resp = checkoutService.checkout(user, request, idempotencyKey);
+	    return created(resp);
 	}
+
 
 }

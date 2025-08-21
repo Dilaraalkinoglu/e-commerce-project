@@ -9,16 +9,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DtoUserRegisterRequest {
-
-	@NotBlank
+public class UserProfileUpdateRequestDto {
+	
+	@NotBlank(message = "Kullanıcı adı boş olamaz")
 	private String userName;
 	
-	@NotBlank
-	private String password;
-	
-	@Email
-	@NotBlank
+	@Email(message = "Geçerli bir e-posta adresi girin")
+	@NotBlank(message = "Email boş olamaz")
 	private String email;
-	
+
 }

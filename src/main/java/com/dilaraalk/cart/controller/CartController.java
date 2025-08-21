@@ -1,6 +1,6 @@
 package com.dilaraalk.cart.controller;
 
-
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +15,8 @@ import com.dilaraalk.cart.dto.CartResponseDto;
 import com.dilaraalk.cart.service.ICartService;
 import com.dilaraalk.common.base.BaseController;
 import com.dilaraalk.user.entity.User;
+import com.dilaraalk.user.service.IUserService;
+import com.dilaraalk.user.service.impl.CustomUserDetails;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,53 +24,49 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/carts")
 @RequiredArgsConstructor
-public class CartController extends BaseController{
-	
-	private final ICartService cartService;
-	
-	//sepeti getir
-	@GetMapping  
-	public CartResponseDto getCart(@AuthenticationPrincipal User user) {
-		return ok(cartService.getCartForUser(user)).getBody();
-	}
-	
-	//sepete ürün ekleme
-	@PostMapping("/items")
-	public CartResponseDto addItem(
-			@AuthenticationPrincipal User user,
-			@RequestBody @Valid CartItemRequestDto requestDto) {
-		return created(cartService.addItem(user, requestDto)).getBody();
-	}
-	
-	//sepetten ürün çıkarma
-	@DeleteMapping("/items/{productId}")
-	public CartResponseDto removeItem(
-			@AuthenticationPrincipal User user,
-			@PathVariable Long productId) {
-		return ok(cartService.removeItem(user, productId)).getBody();
-	}
-	
-	//sepeti temizleme
-	@DeleteMapping("/clear")
-	public CartResponseDto clearCart(@AuthenticationPrincipal User user) {
-		return ok(cartService.clearCart(user)).getBody();
-	}
-	
-	//checkout preview: toplam fiyat ve detay
-	@GetMapping("/checkout-preview")
-	public CartResponseDto checkoutPreview(@AuthenticationPrincipal User user) {
-		return ok(cartService.getCartForUser(user)).getBody();
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+public class CartController extends BaseController {
 
+    private final ICartService cartService;
+    private final IUserService userService;
+
+    // GET /api/carts → Kullanıcının sepetini getir
+    @GetMapping
+    public ResponseEntity<CartResponseDto> getCart(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userService.findById(userDetails.getId());
+        return ok(cartService.getCartForUser(user));
+    }
+
+    // POST /api/carts/items → Sepete ürün ekle
+    @PostMapping("/items")
+    public ResponseEntity<CartResponseDto> addItem(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody CartItemRequestDto requestDto) {
+
+        User user = userService.findById(userDetails.getId());
+        return created(cartService.addItem(user, requestDto));
+    }
+
+    // DELETE /api/carts/items/{productId} → Sepetten ürün çıkar
+    @DeleteMapping("/items/{productId}")
+    public ResponseEntity<CartResponseDto> removeItem(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long productId) {
+
+        User user = userService.findById(userDetails.getId());
+        return ok(cartService.removeItem(user, productId));
+    }
+
+    // DELETE /api/carts/clear → Sepeti tamamen boşalt
+    @DeleteMapping("/clear")
+    public ResponseEntity<CartResponseDto> clearCart(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userService.findById(userDetails.getId());
+        return ok(cartService.clearCart(user));
+    }
+
+    // GET /api/carts/checkout-preview → Ödeme öncesi özet
+    @GetMapping("/checkout-preview")
+    public ResponseEntity<CartResponseDto> checkoutPreview(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userService.findById(userDetails.getId());
+        return ok(cartService.getCartForUser(user));
+    }
 }

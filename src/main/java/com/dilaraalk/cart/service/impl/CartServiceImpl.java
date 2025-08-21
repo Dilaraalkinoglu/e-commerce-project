@@ -80,7 +80,13 @@ public class CartServiceImpl implements ICartService {
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
 
-        cart.getItems().removeIf(item -> item.getProduct().getId().equals(productId));
+        CartItem itemToRemove = cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Product not in cart"));
+
+        cart.getItems().remove(itemToRemove);
+        cartItemRepository.delete(itemToRemove); // orphanRemoval yoksa garanti silinsin
 
         return mapToCartResponseDto(cartRepository.save(cart));
     }
@@ -90,6 +96,7 @@ public class CartServiceImpl implements ICartService {
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
 
+        cartItemRepository.deleteAll(cart.getItems()); // tüm itemleri DB’den sil
         cart.getItems().clear();
 
         return mapToCartResponseDto(cartRepository.save(cart));
