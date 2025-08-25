@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.dilaraalk.address.dto.AddressResponseDto;
@@ -13,6 +14,7 @@ import com.dilaraalk.address.entity.Address;
 import com.dilaraalk.address.repository.AddressRepository;
 import com.dilaraalk.cart.entity.Cart;
 import com.dilaraalk.cart.repository.CartRepository;
+import com.dilaraalk.email.event.OrderConfirmedEvent;
 import com.dilaraalk.order.dto.CheckoutRequestDto;
 import com.dilaraalk.order.dto.CheckoutResponseDto;
 import com.dilaraalk.order.dto.OrderItemDto;
@@ -40,6 +42,7 @@ public class CheckoutServiceImpl implements ICheckoutService{
     private final AddressRepository addressRepository;
     private final PaymentRepository paymentRepository;
 	private final PaymentService paymentService;
+	private final ApplicationEventPublisher eventPublisher;
     
 	//uygulama restartında sıfırlanır 
 	private final ConcurrentHashMap<String, Long> idempotencyStore = new ConcurrentHashMap<>();
@@ -121,6 +124,19 @@ public class CheckoutServiceImpl implements ICheckoutService{
 		// ödeme başarılı (PAID)
 		order.setStatus(OrderStatus.PAID);
 		orderRepository.save(order);
+		
+		// event fırlat
+		eventPublisher.publishEvent(new OrderConfirmedEvent(
+		        this, // source
+		        user.getEmail(), // müşteri e-mail
+		        user.getUserName(),  // müşteri adı
+		        order.getId().toString(), // sipariş numarası
+		        order.getCreatedAt().toLocalDate().toString(), // sipariş tarihi
+		        order.getTotalPrice().toString() // toplam tutar
+		));
+
+
+
 		
 		// Idempotency kaydet
 		if (idempotencyKey != null) {

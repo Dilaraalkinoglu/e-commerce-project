@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sipariş Onayı</title>
+</head>
+<body>
+    <h2>Merhaba <span th:text="${customerName}">Müşteri</span>,</h2>
+    <p>Siparişiniz başarıyla alınmıştır. Detaylar:</p>
+    <ul>
+        <li>Sipariş No: <span th:text="${orderNumber}">12345</span></li>
+        <li>Tarih: <span th:text="${orderDate}">01.01.2025</span></li>
+        <li>Toplam: <span th:text="${totalAmount}">100 TL</span></li>
+    </ul>
+    <p>Teşekkürler!</p>
+</body>
+</html>

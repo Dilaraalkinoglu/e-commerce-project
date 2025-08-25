@@ -58,11 +58,9 @@ public class Product {
     @JoinTable(name = "product_categories",
                joinColumns = @JoinColumn(name = "product_id"),
                inverseJoinColumns = @JoinColumn(name = "category_id"))
-    @ToString.Exclude
     private Set<Category> categories = new HashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
     private Set<ProductImage> images = new HashSet<>();
 
     public void addImage(ProductImage img) {
