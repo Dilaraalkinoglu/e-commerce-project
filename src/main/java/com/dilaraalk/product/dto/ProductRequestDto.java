@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 
@@ -20,6 +21,7 @@ public class ProductRequestDto {
 	private int stock;
 	
 	//ürün eklerken hangi kategorilere ait olacak 
+	@NotEmpty(message = "En az bir kategori seçmelisiniz")
 	private List<Long> categoryIds;
 
 }

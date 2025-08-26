@@ -37,14 +37,14 @@ public class OrderService implements IOrderService{
 	@Override
 	public CheckoutResponseDto getOrderById(Long id) {
 		Order order = orderRepository.findById(id)
-				.orElseThrow(()-> new IllegalArgumentException("Sipariş bulunamadı!"));
+				.orElseThrow(()-> new IllegalStateException("Sipariş bulunamadı!"));
 		return mapToDto(order);
 	}
 
 	@Override
 	public CheckoutResponseDto updateOrderStatus(Long id, String status) {
 		Order order = orderRepository.findById(id)
-				.orElseThrow(()-> new IllegalArgumentException("Sipariş bulunamadı!"));
+				.orElseThrow(()-> new IllegalStateException("Sipariş bulunamadı!"));
 		
 		OrderStatus newStatus;
 		try {

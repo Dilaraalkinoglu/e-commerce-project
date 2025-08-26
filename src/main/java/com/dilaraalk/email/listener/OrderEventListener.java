@@ -6,7 +6,6 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import com.dilaraalk.email.event.OrderConfirmedEvent;
-import com.dilaraalk.email.event.OrderCreatedEvent;
 import com.dilaraalk.email.service.EmailService;
 
 import jakarta.mail.MessagingException;

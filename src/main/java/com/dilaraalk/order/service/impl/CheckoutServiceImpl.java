@@ -86,7 +86,7 @@ public class CheckoutServiceImpl implements ICheckoutService{
 			
 			//stok kontrol
 			if (ci.getQuantity() > ci.getProduct().getStock()) {
-				throw new IllegalArgumentException("Yeterli stok yok: " + ci.getProduct().getName());
+				throw new IllegalStateException("Yeterli stok yok: " + ci.getProduct().getName());
 			}
 			
 			OrderItem oi = new OrderItem();

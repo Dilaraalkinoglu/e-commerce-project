@@ -22,8 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.dilaraalk.category.entity.Category;
 import com.dilaraalk.category.repository.CategoryRepository;
-import com.dilaraalk.common.exception.ProductListEmptyException;
-import com.dilaraalk.common.exception.ProductNotFoundException;
 import com.dilaraalk.common.util.SlugUtil;
 import com.dilaraalk.product.dto.ProductImageDto;
 import com.dilaraalk.product.dto.ProductRequestDto;
@@ -76,7 +74,7 @@ public class ProductServiceImpl implements IProductService{
 		
 		
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new ProductNotFoundException(id));
+				.orElseThrow(() -> new IllegalStateException("Id'si " + id + " olan ürün bulunamadı"));
 		
 		
 		product.setName(productRequestDto.getName());
@@ -103,7 +101,7 @@ public class ProductServiceImpl implements IProductService{
 	public void deleteProduct(Long id) {
 		
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new ProductNotFoundException(id));
+				.orElseThrow(() -> new IllegalStateException("Id'si " + id + " olan ürün bulunamadı"));
 		
 		productRepository.delete(product);
 	}
@@ -112,7 +110,7 @@ public class ProductServiceImpl implements IProductService{
 	public ProductResponseDto getProductById(Long id) {
 
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new ProductNotFoundException(id));
+				.orElseThrow(() -> new IllegalStateException("Id'si " + id + " olan ürün bulunamadı"));
 
 		return toDto(product);
 	}
@@ -123,7 +121,7 @@ public class ProductServiceImpl implements IProductService{
 		List<Product> productList = productRepository.findAll();
 		
 		if (productList.isEmpty()) {
-			throw new ProductListEmptyException();
+			throw new IllegalStateException("Hiç ürün bulunamadı");
 		}
 		
 		return productList.stream().map(this::toDto).collect(Collectors.toList());
@@ -191,7 +189,7 @@ public class ProductServiceImpl implements IProductService{
 	@Override
 	public ProductResponseDto uploadProductImages(Long productId, MultipartFile[] files) {
 		Product product = productRepository.findById(productId)
-				.orElseThrow(() -> new ProductNotFoundException(productId));
+				.orElseThrow(() -> new IllegalStateException("Id'si " + productId + " olan ürün bulunamadı"));
 		
 		String uploadDir = "uploads/";
 		new File(uploadDir).mkdirs(); //klasör yoksa oluşturur

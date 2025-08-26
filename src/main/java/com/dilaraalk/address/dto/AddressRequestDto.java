@@ -16,12 +16,16 @@ public class AddressRequestDto {
 	@NotBlank
     private String addressLine;
     
+	@NotBlank
 	private String city;
     
+	@NotBlank
 	private String state;
     
+	@NotBlank
 	private String postalCode;
     
+	@NotBlank
 	private String country;
     
 	private boolean defaultAddress;
