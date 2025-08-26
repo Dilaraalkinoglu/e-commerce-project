@@ -27,8 +27,7 @@ public class EmailService {
     	mailSender.send(message);
     }
     
-    @Value("${app.mail.from}")
-    private String from;
+    @Value("${app.mail.from}") String from;
 
     public void sendText(String to, String subject, String body) {
         SimpleMailMessage msg = new SimpleMailMessage();
