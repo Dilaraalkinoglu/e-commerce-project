@@ -2,6 +2,7 @@ package com.dilaraalk.cart.entity;
 
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import com.dilaraalk.product.entity.Product;
 
@@ -56,6 +57,18 @@ public class CartItem {
 		return unitPriceSnapshot.multiply(BigDecimal.valueOf(quantity));
 	}
 	
+	@Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CartItem cartItem = (CartItem) o;
+        return id != null && id.equals(cartItem.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 	
 	
 	

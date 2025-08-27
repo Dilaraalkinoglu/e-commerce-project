@@ -188,31 +188,36 @@ public class ProductServiceImpl implements IProductService{
 
 	@Override
 	public ProductResponseDto uploadProductImages(Long productId, MultipartFile[] files) {
-		Product product = productRepository.findById(productId)
-				.orElseThrow(() -> new IllegalStateException("Id'si " + productId + " olan ürün bulunamadı"));
-		
-		String uploadDir = "uploads/";
-		new File(uploadDir).mkdirs(); //klasör yoksa oluşturur
-		
-		for(MultipartFile file : files) {
-			try {
-				String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-		        Path filePath = Paths.get(uploadDir, fileName);
-		        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+	    Product product = productRepository.findById(productId)
+	            .orElseThrow(() -> new IllegalStateException("Id'si " + productId + " olan ürün bulunamadı"));
 
-		        ProductImage image = ProductImage.builder()
-		                .imageUrl("/uploads/" + fileName)
-		                .build();
+	    String uploadDir = "uploads/";
+	    new File(uploadDir).mkdirs();
 
-		        product.addImage(image); 
-			} catch (IOException e) {
-				throw new RuntimeException("Dosya yüklenirken hata oluştu: " + file.getOriginalFilename(),e);
-			}
-		}
-		
-		Product saved = productRepository.save(product);
-		return toDto(saved);
+	    for (MultipartFile file : files) {
+	        try {
+	            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+	            Path filePath = Paths.get(uploadDir, fileName);
+	            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+	            ProductImage image = ProductImage.builder()
+	                    .imageUrl("/uploads/" + fileName)
+	                    .build();
+
+	            product.addImage(image);
+	        } catch (IOException e) {
+	            throw new RuntimeException("Dosya yüklenirken hata oluştu: " + file.getOriginalFilename(), e);
+	        }
+	    }
+
+	    productRepository.save(product);
+
+	    Product refreshed = productRepository.findById(productId)
+	            .orElseThrow(() -> new IllegalStateException("Kaydedilen ürün bulunamadı"));
+
+	    return toDto(refreshed);
 	}
+
 
 
 	@Override

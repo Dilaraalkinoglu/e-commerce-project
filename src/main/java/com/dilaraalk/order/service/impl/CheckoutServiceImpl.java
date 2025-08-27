@@ -170,6 +170,7 @@ public class CheckoutServiceImpl implements ICheckoutService{
 		        .state(address.getState())
 		        .postalCode(address.getPostalCode())
 		        .country(address.getCountry())
+		        .defaultAddress(address.isDefaultAddress())
 		        .build();
 
 		

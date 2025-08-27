@@ -37,6 +37,7 @@ public class CartServiceImpl implements ICartService {
                     return cartRepository.save(newCart);
                 });
 
+        cart.getItems().size();
         return mapToCartResponseDto(cart);
     }
 
@@ -76,6 +77,7 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
+    @Transactional
     public CartResponseDto removeItem(User user, Long productId) {
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
@@ -86,9 +88,12 @@ public class CartServiceImpl implements ICartService {
                 .orElseThrow(() -> new RuntimeException("Product not in cart"));
 
         cart.getItems().remove(itemToRemove);
-        cartItemRepository.delete(itemToRemove); // orphanRemoval yoksa garanti silinsin
+        itemToRemove.setCart(null); 
+        cartRepository.save(cart); 
+        cartRepository.flush(); 
 
-        return mapToCartResponseDto(cartRepository.save(cart));
+
+        return mapToCartResponseDto(cart);
     }
 
     @Override

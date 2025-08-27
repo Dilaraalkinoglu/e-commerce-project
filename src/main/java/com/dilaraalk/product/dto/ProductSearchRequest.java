@@ -1,8 +1,12 @@
 package com.dilaraalk.product.dto;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
+@Getter
+@Setter
 public class ProductSearchRequest {
 	
 	private String name;
