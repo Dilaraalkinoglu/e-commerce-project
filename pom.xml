@@ -5,9 +5,8 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.4</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
+		<version>3.4.1</version>
+		<relativePath/> </parent>
 	<groupId>com.dilaraalk</groupId>
 	<artifactId>e-commerce-project</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -53,6 +52,11 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
 		
 		<dependency>
         <groupId>com.h2database</groupId>
@@ -92,11 +96,11 @@
             <version>0.12.6</version>
             <scope>runtime</scope>
         </dependency>
+
 		<dependency>
-   		 	<groupId>org.springdoc</groupId>
-    		<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-    		<version>2.5.0</version>
-		</dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.8.3</version> </dependency>
 		
 		  <dependency>
 		    <groupId>org.springframework.boot</groupId>
@@ -143,13 +147,7 @@
     </exclusions>
   </dependency>
 
-    <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <scope>test</scope>
-    </dependency>
-    
-    
+
 
 	</dependencies>
 

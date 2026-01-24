@@ -69,14 +69,17 @@ public class SecurityConfig{
     
     //kullanıcı dogrulama işlemleri için kullanılıyor
     @Bean
-	public AuthenticationProvider authenticationProvider(
-	        UserDetailsService userDetailsService,
-	        PasswordEncoder passwordEncoder) {
+    public AuthenticationProvider authenticationProvider(
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder) {
 
-	    DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-	    provider.setPasswordEncoder(passwordEncoder);
-	    return provider;
-	}
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(); // Boş constructor kullanıyoruz
+
+        provider.setUserDetailsService(userDetailsService); // UserDetailsService'i burada set ediyoruz
+        provider.setPasswordEncoder(passwordEncoder);       // PasswordEncoder'ı burada set ediyoruz
+
+        return provider;
+    }
     
     
     @Bean
