@@ -14,28 +14,61 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 var(--spacing-md);
+    height: 50px;
 }
 
 .navbar-logo {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--primary-color);
+    flex-shrink: 0;
 }
 
-.navbar-links {
+.navbar-center-links {
+    display: flex;
+    gap: 30px;
+    position: absolute;
+    /* Center absolutely */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.navbar-right-actions {
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: 20px;
 }
 
 .nav-link {
     font-weight: 500;
     color: var(--text-secondary);
     transition: color 0.2s;
+    font-size: 1rem;
 }
 
 .nav-link:hover {
     color: var(--primary-color);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--bg-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.user-icon {
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+.user-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
 .btn-register {
@@ -52,26 +85,40 @@
 
 .btn-logout {
     background: none;
-    border: 1px solid var(--border-color);
-    padding: 0.5rem 1rem;
-    border-radius: var(--border-radius);
+    border: none;
     color: var(--text-secondary);
-    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color 0.2s;
 }
 
 .btn-logout:hover {
-    background-color: var(--bg-color);
     color: var(--danger-color);
-    border-color: var(--danger-color);
 }
 
-.nav-icon {
+.nav-icon-cart {
     font-size: 1.25rem;
     color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
 }
 
-.nav-user {
-    font-size: 0.9rem;
-    color: var(--text-primary);
-    font-weight: 600;
+.nav-icon-cart:hover {
+    color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .navbar-center-links {
+        position: static;
+        transform: none;
+        margin: 0 15px;
+    }
+
+    .navbar-container {
+        flex-direction: column;
+        height: auto;
+        padding: 15px;
+        gap: 15px;
+    }
 }

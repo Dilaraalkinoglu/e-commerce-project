@@ -26,48 +26,46 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 @EnableMethodSecurity
-public class SecurityConfig{
+public class SecurityConfig {
 
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
-	private final UserDetailsService userDetailsService;
-	
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final UserDetailsService userDetailsService;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
- 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-        	.csrf(csrf -> csrf.disable())
-        	.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/user/**").hasAnyRole("USER","ADMIN")
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/products/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(session->session
-            		.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            		)
-            .authenticationProvider(authenticationProvider(userDetailsService, passwordEncoder()))
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/products/**").permitAll()
+                        .requestMatchers("/api/categories/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
+                        .anyRequest().authenticated())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider(userDetailsService, passwordEncoder()))
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
-    
-    
-    //login işlemi sırasında kullanılıyor
+
+    // login işlemi sırasında kullanılıyor
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
-    	return config.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
-    
-    
-    //kullanıcı dogrulama işlemleri için kullanılıyor
+
+    // kullanıcı dogrulama işlemleri için kullanılıyor
     @Bean
     public AuthenticationProvider authenticationProvider(
             UserDetailsService userDetailsService,
@@ -76,17 +74,16 @@ public class SecurityConfig{
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(); // Boş constructor kullanıyoruz
 
         provider.setUserDetailsService(userDetailsService); // UserDetailsService'i burada set ediyoruz
-        provider.setPasswordEncoder(passwordEncoder);       // PasswordEncoder'ı burada set ediyoruz
+        provider.setPasswordEncoder(passwordEncoder); // PasswordEncoder'ı burada set ediyoruz
 
         return provider;
     }
-    
-    
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
@@ -94,8 +91,5 @@ public class SecurityConfig{
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-    
-    
-    
-    
+
 }

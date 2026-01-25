@@ -20,11 +20,22 @@ const Navbar = () => {
                 <Link to="/" className="navbar-logo">
                     E-Commerce
                 </Link>
-                <div className="navbar-links">
+                <div className="navbar-center-links">
                     <Link to="/" className="nav-link">Home</Link>
+                    {user && <Link to="/addresses" className="nav-link">My Addresses</Link>}
+                    {user && <Link to="/orders" className="nav-link">My Orders</Link>}
+                    {(user?.role === 'ADMIN' || user?.role?.includes('ADMIN')) && (
+                        <Link to="/admin" className="nav-link" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>Admin Panel</Link>
+                    )}
+                </div>
+
+                <div className="navbar-right-actions">
                     {user ? (
                         <>
-                            <span className="nav-user">Hello, {user.userName || user.sub}</span>
+                            <Link to="/profile" className="user-info" style={{ textDecoration: 'none', cursor: 'pointer' }}>
+                                <FaUser className="user-icon" />
+                                <span className="user-name">{user.userName || user.sub}</span>
+                            </Link>
                             <button onClick={handleLogout} className="btn-logout">Logout</button>
                         </>
                     ) : (
@@ -33,7 +44,7 @@ const Navbar = () => {
                             <Link to="/register" className="nav-link btn-register">Register</Link>
                         </>
                     )}
-                    <Link to="/cart" className="nav-icon">
+                    <Link to="/cart" className="nav-icon-cart">
                         <FaShoppingCart />
                     </Link>
                 </div>

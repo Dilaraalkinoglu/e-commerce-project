@@ -10,17 +10,19 @@ import lombok.Data;
 
 @Data
 public class ProductRequestDto {
-	
+
 	@NotBlank(message = "Ürün adı boş olamaz!")
 	private String name;
-	
+
 	@PositiveOrZero(message = "Fiyat negatif olamaz!")
 	private BigDecimal price;
-	
+
 	@PositiveOrZero(message = "Stok negatif olamaz!")
 	private int stock;
-	
-	//ürün eklerken hangi kategorilere ait olacak 
+
+	private String description;
+
+	// ürün eklerken hangi kategorilere ait olacak
 	@NotEmpty(message = "En az bir kategori seçmelisiniz")
 	private List<Long> categoryIds;
 

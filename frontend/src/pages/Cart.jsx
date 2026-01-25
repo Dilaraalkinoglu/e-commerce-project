@@ -6,7 +6,7 @@ import '../styles/cart.css';
 import { FaTrash } from 'react-icons/fa';
 
 const Cart = () => {
-    const { cart, removeFromCart, fetchCart, loading } = useCart();
+    const { cart, removeFromCart, updateQuantity, fetchCart, loading } = useCart();
 
     useEffect(() => {
         fetchCart();
@@ -33,11 +33,26 @@ const Cart = () => {
                     {cart.items.map((item) => (
                         <div key={item.id} className="cart-item">
                             <div className="item-info">
-                                <h3>{item.productName}</h3>
+                                <Link to={`/product/${item.productId}`} className="product-title-link">
+                                    <h3>{item.productName}</h3>
+                                </Link>
                                 <p className="item-price">${item.unitPrice.toFixed(2)} x {item.quantity}</p>
                             </div>
                             <div className="item-total">
-                                <p>${item.subTotal.toFixed(2)}</p>
+                                <div className="quantity-controls">
+                                    <button
+                                        className="btn-quantity"
+                                        onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                                        disabled={loading}
+                                    >-</button>
+                                    <span className="quantity-display">{item.quantity}</span>
+                                    <button
+                                        className="btn-quantity"
+                                        onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                                        disabled={loading}
+                                    >+</button>
+                                </div>
+                                <p className="item-subtotal">${item.subTotal.toFixed(2)}</p>
                                 <button
                                     className="btn-remove"
                                     onClick={() => removeFromCart(item.productId)}
@@ -59,7 +74,7 @@ const Cart = () => {
                         <span>Total</span>
                         <span>${cart.total.toFixed(2)}</span>
                     </div>
-                    <button className="btn-checkout">Proceed to Checkout</button>
+                    <Link to="/checkout" className="btn-checkout" style={{ display: 'block', textAlign: 'center' }}>Proceed to Checkout</Link>
                 </div>
             </div>
         </div>

@@ -1,6 +1,5 @@
 package com.dilaraalk.product.service.impl;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,76 +32,69 @@ import com.dilaraalk.product.repository.ProductRepository;
 import com.dilaraalk.product.service.IProductService;
 import com.dilaraalk.product.specification.ProductSpecification;
 
-
 @Service
-public class ProductServiceImpl implements IProductService{
-	
+public class ProductServiceImpl implements IProductService {
+
 	private final ProductRepository productRepository;
-	
+
 	private final CategoryRepository categoryRepository;
-	
+
 	public ProductServiceImpl(ProductRepository productRepository,
 			CategoryRepository categoryRepository) {
 		this.productRepository = productRepository;
 		this.categoryRepository = categoryRepository;
 	}
-	
 
 	@Override
 	public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
-	    Product product = toEntity(productRequestDto);
-	   
-        // Slug üret ve benzersizliğini kontrol et
-        String slug = SlugUtil.generateUniqueSlug(productRequestDto.getName(), productRepository::existsBySlug);
-        product.setSlug(slug);
-	    
-	    
-	    // DTO'dan gelen kategori ID'lerini alıp var mı diye kontrol et
-	    if (productRequestDto.getCategoryIds() != null && !productRequestDto.getCategoryIds().isEmpty()) {
-	        product.setCategories(new HashSet<>(
-	            categoryRepository.findAllById(productRequestDto.getCategoryIds())
-	        ));
-	    }
+		Product product = toEntity(productRequestDto);
 
-		//Dto'dan alıp entity'e dönüştürüp veritabanına kaydettik
+		// Slug üret ve benzersizliğini kontrol et
+		String slug = SlugUtil.generateUniqueSlug(productRequestDto.getName(), productRepository::existsBySlug);
+		product.setSlug(slug);
+
+		// DTO'dan gelen kategori ID'lerini alıp var mı diye kontrol et
+		if (productRequestDto.getCategoryIds() != null && !productRequestDto.getCategoryIds().isEmpty()) {
+			product.setCategories(new HashSet<>(
+					categoryRepository.findAllById(productRequestDto.getCategoryIds())));
+		}
+
+		// Dto'dan alıp entity'e dönüştürüp veritabanına kaydettik
 		Product savedProduct = productRepository.save(product);
 		return toDto(savedProduct);
 	}
 
 	@Override
 	public ProductResponseDto updateProduct(Long id, ProductRequestDto productRequestDto) {
-		
-		
+
 		Product product = productRepository.findById(id)
 				.orElseThrow(() -> new IllegalStateException("Id'si " + id + " olan ürün bulunamadı"));
-		
-		
+
 		product.setName(productRequestDto.getName());
 		product.setPrice(productRequestDto.getPrice());
 		product.setStock(productRequestDto.getStock());
-		
-        // Slug’ı yeniden üret
-        String slug = SlugUtil.generateUniqueSlug(productRequestDto.getName(), productRepository::existsBySlug);
-        product.setSlug(slug);
-				
-	    // Kategori ilişkisini güncelle
+		product.setDescription(productRequestDto.getDescription());
+
+		// Slug’ı yeniden üret
+		String slug = SlugUtil.generateUniqueSlug(productRequestDto.getName(), productRepository::existsBySlug);
+		product.setSlug(slug);
+
+		// Kategori ilişkisini güncelle
 		if (productRequestDto.getCategoryIds() != null) {
-		    product.setCategories(
-		        new HashSet<>(categoryRepository.findAllById(productRequestDto.getCategoryIds()))
-		    );
+			product.setCategories(
+					new HashSet<>(categoryRepository.findAllById(productRequestDto.getCategoryIds())));
 		}
 
-		
-	    return toDto(productRepository.save(product));
-		
+		return toDto(productRepository.save(product));
+
 	}
 
 	@Override
 	public void deleteProduct(Long id) {
-		
+
 		Product product = productRepository.findById(id)
 				.orElseThrow(() -> new IllegalStateException("Id'si " + id + " olan ürün bulunamadı"));
-		
+
 		productRepository.delete(product);
 	}
 
@@ -117,127 +109,116 @@ public class ProductServiceImpl implements IProductService{
 
 	@Override
 	public List<ProductResponseDto> getAllProducts() {
-		
+
 		List<Product> productList = productRepository.findAll();
-		
+
 		if (productList.isEmpty()) {
 			throw new IllegalStateException("Hiç ürün bulunamadı");
 		}
-		
+
 		return productList.stream().map(this::toDto).collect(Collectors.toList());
 	}
 
-
 	@Override
 	public Page<ProductResponseDto> getAllProductsPaginated(Pageable pageable) {
-		 return productRepository.findAll(pageable).map(this::toDto);
+		return productRepository.findAll(pageable).map(this::toDto);
 	}
-	
-	//Entity dto dönüşümü 
-	private ProductResponseDto toDto(Product product){
+
+	// Entity dto dönüşümü
+	private ProductResponseDto toDto(Product product) {
 		ProductResponseDto dto = new ProductResponseDto();
 		dto.setId(product.getId());
 		dto.setName(product.getName());
 		dto.setPrice(product.getPrice());
 		dto.setStock(product.getStock());
-		
+		dto.setDescription(product.getDescription());
 
-        if (product.getCategories() != null) {
-            dto.setCategories(
-                product.getCategories()
-                       .stream()
-                       .map(Category::getName)
-                       .collect(Collectors.toList())
-            );
-        } else {
-            dto.setCategories(List.of());
-        }
-        
-        if (product.getImages() != null) {
-            dto.setImages(
-                product.getImages()
-                       .stream()
-                       .map(img -> new ProductImageDto(img.getId(), img.getImageUrl()))
-                       .collect(Collectors.toList())
-            );
-        } else {
-            dto.setImages(List.of());
-        }
+		if (product.getCategories() != null) {
+			dto.setCategories(
+					product.getCategories()
+							.stream()
+							.map(Category::getName)
+							.collect(Collectors.toList()));
+		} else {
+			dto.setCategories(List.of());
+		}
 
-        
+		if (product.getImages() != null) {
+			dto.setImages(
+					product.getImages()
+							.stream()
+							.map(img -> new ProductImageDto(img.getId(), img.getImageUrl()))
+							.collect(Collectors.toList()));
+		} else {
+			dto.setImages(List.of());
+		}
+
 		return dto;
 	}
-	
-	//Dto entity dönüşümü 
+
+	// Dto entity dönüşümü
 	private Product toEntity(ProductRequestDto dto) {
-	    Product product = new Product();
-	    product.setName(dto.getName());
-	    product.setPrice(dto.getPrice());
-	    product.setStock(dto.getStock());
+		Product product = new Product();
+		product.setName(dto.getName());
+		product.setPrice(dto.getPrice());
+		product.setStock(dto.getStock());
+		product.setDescription(dto.getDescription());
 
-	    if (dto.getCategoryIds() != null) {
-	        product.setCategories(
-	            new HashSet<>(categoryRepository.findAllById(dto.getCategoryIds()))
-	        );
-	    } else {
-	        product.setCategories(new HashSet<>());
-	    }
-	    return product;
+		if (dto.getCategoryIds() != null) {
+			product.setCategories(
+					new HashSet<>(categoryRepository.findAllById(dto.getCategoryIds())));
+		} else {
+			product.setCategories(new HashSet<>());
+		}
+		return product;
 	}
-
 
 	@Override
 	public ProductResponseDto uploadProductImages(Long productId, MultipartFile[] files) {
-	    Product product = productRepository.findById(productId)
-	            .orElseThrow(() -> new IllegalStateException("Id'si " + productId + " olan ürün bulunamadı"));
+		Product product = productRepository.findById(productId)
+				.orElseThrow(() -> new IllegalStateException("Id'si " + productId + " olan ürün bulunamadı"));
 
-	    String uploadDir = "uploads/";
-	    new File(uploadDir).mkdirs();
+		String uploadDir = "uploads/";
+		new File(uploadDir).mkdirs();
 
-	    for (MultipartFile file : files) {
-	        try {
-	            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-	            Path filePath = Paths.get(uploadDir, fileName);
-	            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+		for (MultipartFile file : files) {
+			try {
+				String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+				Path filePath = Paths.get(uploadDir, fileName);
+				Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-	            ProductImage image = ProductImage.builder()
-	                    .imageUrl("/uploads/" + fileName)
-	                    .build();
+				ProductImage image = ProductImage.builder()
+						.imageUrl("/uploads/" + fileName)
+						.build();
 
-	            product.addImage(image);
-	        } catch (IOException e) {
-	            throw new RuntimeException("Dosya yüklenirken hata oluştu: " + file.getOriginalFilename(), e);
-	        }
-	    }
+				product.addImage(image);
+			} catch (IOException e) {
+				throw new RuntimeException("Dosya yüklenirken hata oluştu: " + file.getOriginalFilename(), e);
+			}
+		}
 
-	    productRepository.save(product);
+		productRepository.save(product);
 
-	    Product refreshed = productRepository.findById(productId)
-	            .orElseThrow(() -> new IllegalStateException("Kaydedilen ürün bulunamadı"));
+		Product refreshed = productRepository.findById(productId)
+				.orElseThrow(() -> new IllegalStateException("Kaydedilen ürün bulunamadı"));
 
-	    return toDto(refreshed);
+		return toDto(refreshed);
 	}
-
-
 
 	@Override
 	public Page<ProductResponseDto> searchProducts(ProductSearchRequest request) {
-		
-		//pageable 
+
+		// pageable
 		Sort sort = Sort.by(
 				request.getDirection().equalsIgnoreCase("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC,
-				request.getSortBy()
-				);
+				request.getSortBy());
 		Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
-		
+
 		// specification ile filtreleme
 		Specification<Product> spec = ProductSpecification.getProducts(request);
-		
-		return productRepository.findAll(spec,pageable)
+
+		return productRepository.findAll(spec, pageable)
 				.map(this::toDto);
 	}
-	
-	
-
 
 }

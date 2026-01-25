@@ -50,8 +50,17 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    const updateQuantity = async (productId, quantity) => {
+        try {
+            const updatedCart = await cartService.updateItem(productId, quantity);
+            setCart(updatedCart);
+        } catch (error) {
+            console.error("Failed to update item quantity", error);
+        }
+    };
+
     return (
-        <CartContext.Provider value={{ cart, addToCart, removeFromCart, fetchCart, loading }}>
+        <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, fetchCart, loading }}>
             {children}
         </CartContext.Provider>
     );

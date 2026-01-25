@@ -17,6 +17,11 @@ const cartService = {
         return response.data;
     },
 
+    updateItem: async (productId, quantity) => {
+        const response = await api.put(`/carts/items/${productId}?quantity=${quantity}`);
+        return response.data;
+    },
+
     clearCart: async () => {
         const response = await api.delete('/carts/clear');
         return response.data;

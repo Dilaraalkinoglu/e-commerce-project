@@ -9,15 +9,13 @@ import com.dilaraalk.user.entity.User;
 public interface IUserService {
 
 	Optional<User> findByUserName(String userName);
-	
+
 	UserProfileResponseDto getProfile(Long userId);
-	
+
 	UserProfileResponseDto updateProfile(Long userId, UserProfileUpdateRequestDto request);
 
-    User findById(Long id);
+	User findById(Long id);
 
-	
-	
-	
-	
+	void updatePassword(Long userId, com.dilaraalk.user.dto.UserPasswordUpdateRequestDto request);
+
 }

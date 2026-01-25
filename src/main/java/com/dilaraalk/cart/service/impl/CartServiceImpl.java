@@ -88,10 +88,35 @@ public class CartServiceImpl implements ICartService {
                 .orElseThrow(() -> new RuntimeException("Product not in cart"));
 
         cart.getItems().remove(itemToRemove);
-        itemToRemove.setCart(null); 
-        cartRepository.save(cart); 
-        cartRepository.flush(); 
+        itemToRemove.setCart(null);
+        cartRepository.save(cart);
+        cartRepository.flush();
 
+        return mapToCartResponseDto(cart);
+    }
+
+    @Override
+    @Transactional
+    public CartResponseDto updateItemQuantity(User user, Long productId, int quantity) {
+        if (quantity <= 0) {
+            return removeItem(user, productId);
+        }
+
+        Cart cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Cart not found"));
+
+        CartItem cartItem = cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Product not in cart"));
+
+        // Check stock
+        if (cartItem.getProduct().getStock() < quantity) {
+            throw new IllegalArgumentException("Yeterli stok yok");
+        }
+
+        cartItem.setQuantity(quantity);
+        cartItemRepository.save(cartItem);
 
         return mapToCartResponseDto(cart);
     }

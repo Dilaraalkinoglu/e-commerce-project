@@ -56,14 +56,14 @@ public class Product {
     @Column(name = "product_stock", nullable = false)
     private int stock;
 
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "product_categories",
-               joinColumns = @JoinColumn(name = "product_id"),
-               inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @JoinTable(name = "product_categories", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<Category> categories = new HashSet<>();
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true,
-    		fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<ProductImage> images = new HashSet<>();
 
     public void addImage(ProductImage img) {
@@ -78,12 +78,9 @@ public class Product {
 
     @Column(nullable = false, unique = true)
     private String slug;
-    
-    
-    @Column(name = "created_at",nullable = false, updatable = false)
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
-
-  
 
 }

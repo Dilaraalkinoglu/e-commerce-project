@@ -16,17 +16,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CheckoutResponseDto {
-	
+
 	private Long orderId;
-	
+
 	private LocalDateTime createdAt;
-	
+
+	private String userName;
+
+	private String email;
+
 	private String status;
-	
+
 	private BigDecimal totalPrice;
-	
+
 	private List<OrderItemDto> items;
-	
+
 	private AddressResponseDto address;
 
 }
