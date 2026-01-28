@@ -12,21 +12,21 @@ const Cart = () => {
         fetchCart();
     }, []);
 
-    if (loading) return <div className="loading">Loading cart...</div>;
+    if (loading) return <div className="loading">Sepet yükleniyor...</div>;
 
     if (!cart || !cart.items || cart.items.length === 0) {
         return (
             <div className="cart-empty">
-                <h2>Your Cart is Empty</h2>
-                <p>Looks like you haven't added anything to your cart yet.</p>
-                <Link to="/" className="btn-primary">Start Shopping</Link>
+                <h2>Sepetiniz Boş</h2>
+                <p>Henüz sepetinize bir ürün eklemediniz.</p>
+                <Link to="/" className="btn-primary">Alışverişe Başla</Link>
             </div>
         );
     }
 
     return (
         <div className="cart-container">
-            <h2>Shopping Cart</h2>
+            <h2>Alışveriş Sepeti</h2>
 
             <div className="cart-content">
                 <div className="cart-items">
@@ -65,16 +65,16 @@ const Cart = () => {
                 </div>
 
                 <div className="cart-summary">
-                    <h3>Order Summary</h3>
+                    <h3>Sipariş Özeti</h3>
                     <div className="summary-row">
-                        <span>Subtotal</span>
+                        <span>Ara Toplam</span>
                         <span>${cart.total.toFixed(2)}</span>
                     </div>
                     <div className="summary-row total">
-                        <span>Total</span>
+                        <span>Toplam</span>
                         <span>${cart.total.toFixed(2)}</span>
                     </div>
-                    <Link to="/checkout" className="btn-checkout" style={{ display: 'block', textAlign: 'center' }}>Proceed to Checkout</Link>
+                    <Link to="/checkout" className="btn-checkout" style={{ display: 'block', textAlign: 'center' }}>Siparişi Tamamla</Link>
                 </div>
             </div>
         </div>

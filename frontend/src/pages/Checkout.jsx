@@ -38,7 +38,7 @@ const Checkout = () => {
 
     const handleCheckout = async () => {
         if (!selectedAddressId) {
-            alert('Please select a delivery address.');
+            alert('Lütfen bir teslimat adresi seçin.');
             return;
         }
 
@@ -48,25 +48,25 @@ const Checkout = () => {
                 addressId: selectedAddressId,
                 paymentMethod: paymentMethod
             });
-            alert('Order placed successfully!');
+            alert('Sipariş başarıyla alındı!');
             fetchCart(); // Clear cart in context (if backend clears it)
             navigate('/'); // Redirect to home or orders page
         } catch (err) {
             console.error(err);
-            alert('Checkout failed: ' + (err.response?.data?.message || err.message));
+            alert('Sipariş oluşturulamadı: ' + (err.response?.data?.message || err.message));
         } finally {
             setSubmitting(false);
         }
     };
 
-    if (loading || cartLoading) return <div className="loading">Loading...</div>;
+    if (loading || cartLoading) return <div className="loading">Yükleniyor...</div>;
 
     if (!cart || !cart.items || cart.items.length === 0) {
         return (
             <div className="checkout-container">
                 <div className="no-items-msg">
-                    <h2>Your cart is empty</h2>
-                    <button onClick={() => navigate('/')}>Go Shopping</button>
+                    <h2>Sepetiniz boş</h2>
+                    <button onClick={() => navigate('/')}>Alışverişe Dön</button>
                 </div>
             </div>
         );
@@ -74,16 +74,16 @@ const Checkout = () => {
 
     return (
         <div className="checkout-container">
-            <h1 className="checkout-title">Checkout</h1>
+            <h1 className="checkout-title">Siparişi Tamamla</h1>
 
             <div className="checkout-grid">
                 <div className="checkout-left">
                     <section className="checkout-section">
-                        <h2 className="section-title">1. Delivery Address</h2>
+                        <h2 className="section-title">1. Teslimat Adresi</h2>
                         {addresses.length === 0 ? (
                             <div>
-                                <p>No addresses found.</p>
-                                <button onClick={() => navigate('/addresses')}>Add New Address</button>
+                                <p>Adres bulunamadı.</p>
+                                <button onClick={() => navigate('/addresses')}>Yeni Adres Ekle</button>
                             </div>
                         ) : (
                             <div className="address-selection-grid">
@@ -110,12 +110,12 @@ const Checkout = () => {
                             </div>
                         )}
                         <div style={{ marginTop: '15px', textAlign: 'right' }}>
-                            <button onClick={() => navigate('/addresses')} style={{ color: 'var(--primary-color)', background: 'none', border: 'none', cursor: 'pointer' }}>Manage Addresses</button>
+                            <button onClick={() => navigate('/addresses')} style={{ color: 'var(--primary-color)', background: 'none', border: 'none', cursor: 'pointer' }}>Adresleri Yönet</button>
                         </div>
                     </section>
 
                     <section className="checkout-section">
-                        <h2 className="section-title">2. Payment Method</h2>
+                        <h2 className="section-title">2. Ödeme Yöntemi</h2>
                         <div className="payment-methods">
                             <label className={`payment-method-option ${paymentMethod === 'CREDIT_CARD' ? 'selected' : ''}`}>
                                 <input
@@ -125,7 +125,7 @@ const Checkout = () => {
                                     checked={paymentMethod === 'CREDIT_CARD'}
                                     onChange={(e) => setPaymentMethod(e.target.value)}
                                 />
-                                Credit Card
+                                Kredi Kartı
                             </label>
                             <label className={`payment-method-option ${paymentMethod === 'PAYPAL' ? 'selected' : ''}`}>
                                 <input
@@ -145,7 +145,7 @@ const Checkout = () => {
                                     checked={paymentMethod === 'CASH_ON_DELIVERY'}
                                     onChange={(e) => setPaymentMethod(e.target.value)}
                                 />
-                                Cash on Delivery
+                                Kapıda Ödeme
                             </label>
                         </div>
                     </section>
@@ -153,7 +153,7 @@ const Checkout = () => {
 
                 <div className="checkout-right">
                     <div className="order-summary">
-                        <h2 className="section-title">Order Summary</h2>
+                        <h2 className="section-title">Sipariş Özeti</h2>
                         {cart.items.map(item => (
                             <div key={item.id} className="summary-item">
                                 <span>{item.quantity} x {item.productName}</span>
@@ -162,7 +162,7 @@ const Checkout = () => {
                         ))}
 
                         <div className="summary-item total">
-                            <span>Total</span>
+                            <span>Toplam</span>
                             <span>${cart.total.toFixed(2)}</span>
                         </div>
 
@@ -171,7 +171,7 @@ const Checkout = () => {
                             onClick={handleCheckout}
                             disabled={submitting || !selectedAddressId}
                         >
-                            {submitting ? 'Processing...' : 'Place Order'}
+                            {submitting ? 'İşleniyor...' : 'Siparişi Onayla'}
                         </button>
                     </div>
                 </div>

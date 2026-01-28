@@ -27,6 +27,16 @@ const Orders = () => {
         }
     };
 
+    const getStatusLabel = (status) => {
+        switch (status) {
+            case 'PENDING': return 'Beklemede';
+            case 'SHIPPED': return 'Kargolandı';
+            case 'DELIVERED': return 'Teslim Edildi';
+            case 'CANCELLED': return 'İptal Edildi';
+            default: return status;
+        }
+    };
+
     if (loading) return <div className="loading">Yükleniyor...</div>;
 
     if (!orders || orders.length === 0) {
@@ -60,8 +70,13 @@ const Orders = () => {
                                 <div className="order-id">Sipariş #{order.orderId}</div>
                                 <div className="order-date">{new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString()}</div>
                             </div>
-                            <div className={`order-status ${order.status?.toLowerCase()}`}>
-                                {order.status}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                                <div className={`order-status ${order.status?.toLowerCase()}`}>
+                                    {getStatusLabel(order.status)}
+                                </div>
+                                <Link to={`/orders/${order.orderId}`} className="btn-view-details" style={{ textDecoration: 'none', color: 'var(--primary-color)', fontSize: '0.9rem', fontWeight: '500' }}>
+                                    Detay Gör &rarr;
+                                </Link>
                             </div>
                         </div>
 

@@ -23,21 +23,21 @@ const Register = () => {
                 // Redirect to login after successful registration
                 navigate('/login');
             } else {
-                setError('Registration failed.');
+                setError('Kayıt başarısız.');
             }
         } catch (err) {
-            setError('An error occurred during registration. try another username.');
+            setError('Kayıt sırasında bir hata oluştu. Başka bir kullanıcı adı deneyin.');
         }
     };
 
     return (
         <div className="auth-container">
             <div className="auth-card">
-                <h2>Register</h2>
+                <h2>Kayıt Ol</h2>
                 {error && <div className="error-message">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label>Username</label>
+                        <label>Kullanıcı Adı</label>
                         <input
                             type="text"
                             name="userName"
@@ -48,7 +48,7 @@ const Register = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label>Email</label>
+                        <label>E-posta</label>
                         <input
                             type="email"
                             name="email"
@@ -58,7 +58,7 @@ const Register = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label>Password</label>
+                        <label>Şifre</label>
                         <input
                             type="password"
                             name="password"
@@ -68,10 +68,10 @@ const Register = () => {
                             minLength={5}
                         />
                     </div>
-                    <button type="submit" className="btn-primary">Register</button>
+                    <button type="submit" className="btn-primary">Kayıt Ol</button>
                 </form>
                 <p className="auth-footer">
-                    Already have an account? <Link to="/login">Login</Link>
+                    Zaten hesabınız var mı? <Link to="/login">Giriş Yap</Link>
                 </p>
             </div>
         </div>

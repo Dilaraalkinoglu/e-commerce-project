@@ -45,14 +45,14 @@ const ProductDetail = () => {
         addToCart(product.id, quantity);
     };
 
-    if (loading) return <div className="loading">Loading details...</div>;
+    if (loading) return <div className="loading">Detaylar yükleniyor...</div>;
 
     if (error || !product) {
         return (
             <div className="product-detail-container">
                 <div style={{ textAlign: 'center', marginTop: '50px' }}>
-                    <h2>Product not found</h2>
-                    <button onClick={() => navigate('/')} className="qty-btn" style={{ marginTop: '20px', width: 'auto', padding: '10px 20px', background: 'var(--primary-color)', color: 'white' }}>Back to Home</button>
+                    <h2>Ürün bulunamadı</h2>
+                    <button onClick={() => navigate('/')} className="qty-btn" style={{ marginTop: '20px', width: 'auto', padding: '10px 20px', background: 'var(--primary-color)', color: 'white' }}>Ana Sayfaya Dön</button>
                 </div>
             </div>
         );
@@ -63,13 +63,13 @@ const ProductDetail = () => {
     return (
         <div className="product-detail-container">
             <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '20px', fontSize: '1rem', color: 'var(--text-secondary)' }}>
-                <FaArrowLeft /> Back
+                <FaArrowLeft /> Geri
             </button>
 
             <div className="product-detail-grid">
                 <div className="product-image-section">
                     <img
-                        src={(product.images && product.images.length > 0) ? `${BASE_URL}${product.images[0].imageUrl}` : 'https://placehold.co/600x400?text=No+Image'}
+                        src={(product.images && product.images.length > 0) ? `${BASE_URL}${product.images[0].imageUrl}` : 'https://placehold.co/600x400?text=Resim+Yok'}
                         alt={product.name}
                         className="product-detail-image"
                     />
@@ -80,13 +80,13 @@ const ProductDetail = () => {
                     <div className="product-price">${product.price.toFixed(2)}</div>
 
                     <div className={isOutOfStock ? "stock-status out-of-stock" : "stock-status in-stock"}>
-                        {isOutOfStock ? "Out of Stock" : `In Stock (${product.stock} available)`}
+                        {isOutOfStock ? "Stokta Yok" : `Stokta Var (${product.stock} adet mevcut)`}
                     </div>
 
                     <div className="product-description-container">
-                        <div className="product-description-title">Description</div>
+                        <div className="product-description-title">Açıklama</div>
                         <p className="product-description">
-                            {product.description || "No description available for this product."}
+                            {product.description || "Bu ürün için açıklama bulunmuyor."}
                         </p>
                     </div>
 
@@ -111,7 +111,7 @@ const ProductDetail = () => {
                             disabled={isOutOfStock}
                         >
                             <FaShoppingCart />
-                            {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                            {isOutOfStock ? 'Stokta Yok' : 'Sepete Ekle'}
                         </button>
                     </div>
                 </div>

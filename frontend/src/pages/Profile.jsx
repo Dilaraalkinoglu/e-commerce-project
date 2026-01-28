@@ -30,7 +30,7 @@ const Profile = () => {
             setLoading(false);
         } catch (err) {
             console.error(err);
-            setMessage({ type: 'error', text: 'Failed to load profile' });
+            setMessage({ type: 'error', text: 'Profil yüklenemedi' });
             setLoading(false);
         }
     };
@@ -46,10 +46,10 @@ const Profile = () => {
 
         try {
             await userService.updateProfile(formData);
-            setMessage({ type: 'success', text: 'Profile updated successfully!' });
+            setMessage({ type: 'success', text: 'Profil başarıyla güncellendi!' });
         } catch (err) {
             console.error(err);
-            setMessage({ type: 'error', text: 'Failed to update profile. Email might be in use.' });
+            setMessage({ type: 'error', text: 'Profil güncellenemedi. E-posta kullanımda olabilir.' });
         } finally {
             setSaving(false);
         }
@@ -62,21 +62,21 @@ const Profile = () => {
 
         try {
             await userService.updatePassword(passwordData);
-            setMessage({ type: 'success', text: 'Password updated successfully!' });
+            setMessage({ type: 'success', text: 'Şifre başarıyla güncellendi!' });
             setPasswordData({ currentPassword: '', newPassword: '' });
         } catch (err) {
             console.error(err);
-            setMessage({ type: 'error', text: 'Failed to update password. Check current password.' });
+            setMessage({ type: 'error', text: 'Şifre güncellenemedi. Lütfen mevcut şifrenizi kontrol edin.' });
         } finally {
             setPasswordSaving(false);
         }
     };
 
-    if (loading) return <div className="loading-container">Loading...</div>;
+    if (loading) return <div className="loading-container">Yükleniyor...</div>;
 
     return (
         <div className="profile-container">
-            <h1 className="profile-title">My Profile</h1>
+            <h1 className="profile-title">Profilim</h1>
 
             {message.text && (
                 <div className={`message-alert ${message.type}`}>
@@ -87,7 +87,7 @@ const Profile = () => {
             <div className="profile-card">
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Username</label>
+                        <label className="form-label">Kullanıcı Adı</label>
                         <input
                             type="text"
                             name="userName"
@@ -99,7 +99,7 @@ const Profile = () => {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Email</label>
+                        <label className="form-label">E-posta</label>
                         <input
                             type="email"
                             name="email"
@@ -111,27 +111,27 @@ const Profile = () => {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Role</label>
+                        <label className="form-label">Rol</label>
                         <input
                             type="text"
                             className="form-input disabled"
                             value={authUser?.role || 'USER'} // Display only
                             disabled
                         />
-                        <small className="form-hint">Role cannot be changed.</small>
+                        <small className="form-hint">Rol değiştirilemez.</small>
                     </div>
 
                     <button type="submit" className="btn-save" disabled={saving}>
-                        {saving ? 'Saving...' : 'Update Profile'}
+                        {saving ? 'Kaydediliyor...' : 'Profili Güncelle'}
                     </button>
                 </form>
             </div>
 
             <div className="profile-card" style={{ marginTop: '20px' }}>
-                <h2 style={{ fontSize: '1.2rem', marginBottom: '20px' }}>Change Password</h2>
+                <h2 style={{ fontSize: '1.2rem', marginBottom: '20px' }}>Şifre Değiştir</h2>
                 <form onSubmit={handlePasswordSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Current Password</label>
+                        <label className="form-label">Mevcut Şifre</label>
                         <input
                             type="password"
                             className="form-input"
@@ -141,7 +141,7 @@ const Profile = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">New Password</label>
+                        <label className="form-label">Yeni Şifre</label>
                         <input
                             type="password"
                             className="form-input"
@@ -152,7 +152,7 @@ const Profile = () => {
                         />
                     </div>
                     <button type="submit" className="btn-save" disabled={passwordSaving} style={{ backgroundColor: '#4b5563' }}>
-                        {passwordSaving ? 'Updating...' : 'Change Password'}
+                        {passwordSaving ? 'Güncelleniyor...' : 'Şifreyi Güncelle'}
                     </button>
                 </form>
             </div>

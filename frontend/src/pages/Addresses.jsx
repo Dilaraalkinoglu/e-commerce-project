@@ -14,6 +14,7 @@ const Addresses = () => {
         country: '',
         defaultAddress: false
     });
+    const [editingId, setEditingId] = useState(null); // Track which address is being edited
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -43,9 +44,14 @@ const Addresses = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await addressService.addAddress(formData);
+            if (editingId) {
+                await addressService.updateAddress(editingId, formData);
+            } else {
+                await addressService.addAddress(formData);
+            }
             await fetchAddresses(); // Refresh list
             setShowModal(false);
+            setEditingId(null);
             setFormData({
                 title: '',
                 addressLine: '',
@@ -56,8 +62,22 @@ const Addresses = () => {
                 defaultAddress: false
             });
         } catch (err) {
-            alert('Adres eklenirken hata oluştu: ' + err.message);
+            alert('İşlem sırasında hata oluştu: ' + err.message);
         }
+    };
+
+    const handleEdit = (addr) => {
+        setFormData({
+            title: addr.title,
+            addressLine: addr.addressLine,
+            city: addr.city,
+            state: addr.state,
+            postalCode: addr.postalCode,
+            country: addr.country,
+            defaultAddress: addr.defaultAddress || false
+        });
+        setEditingId(addr.id);
+        setShowModal(true);
     };
 
     const handleDelete = async (id) => {
@@ -95,6 +115,7 @@ const Addresses = () => {
                             {/* {addr.defaultAddress && <span className="default-badge">Varsayılan</span>} */}
                         </div>
                         <div className="address-actions">
+                            <button className="edit-btn" onClick={() => handleEdit(addr)}>Düzenle</button>
                             <button className="delete-btn" onClick={() => handleDelete(addr.id)}>Sil</button>
                         </div>
                     </div>
@@ -105,8 +126,8 @@ const Addresses = () => {
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h2>Yeni Adres Ekle</h2>
-                            <button className="close-btn" onClick={() => setShowModal(false)}>&times;</button>
+                            <h2>{editingId ? 'Adresi Düzenle' : 'Yeni Adres Ekle'}</h2>
+                            <button className="close-btn" onClick={() => { setShowModal(false); setEditingId(null); setFormData({ title: '', addressLine: '', city: '', state: '', postalCode: '', country: '', defaultAddress: false }); }}>&times;</button>
                         </div>
                         <form onSubmit={handleSubmit} className="address-form">
                             <div className="form-group">
@@ -188,7 +209,7 @@ const Addresses = () => {
                                 </label>
                             </div> */}
                             <div className="form-actions">
-                                <button type="button" className="cancel-btn" onClick={() => setShowModal(false)}>İptal</button>
+                                <button type="button" className="cancel-btn" onClick={() => { setShowModal(false); setEditingId(null); setFormData({ title: '', addressLine: '', city: '', state: '', postalCode: '', country: '', defaultAddress: false }); }}>İptal</button>
                                 <button type="submit" className="save-btn">Kaydet</button>
                             </div>
                         </form>

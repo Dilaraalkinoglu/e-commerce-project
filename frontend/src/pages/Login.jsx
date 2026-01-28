@@ -22,7 +22,7 @@ const Login = () => {
             if (success) {
                 navigate('/');
             } else {
-                setError('Login failed. Please check your credentials.');
+                setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
             }
         } catch (err) {
             console.error("Login Error:", err);
@@ -30,12 +30,12 @@ const Login = () => {
             if (err.response && err.response.data) {
                 // Try to grab the message from standard Spring Boot error bodies or custom ones
                 // Usually: { "status": 401, "error": "Unauthorized", "message": "Bad credentials", ... }
-                const msg = err.response.data.message || err.response.data.error || 'Server error';
-                setError(`Login failed: ${msg}`);
+                const msg = err.response.data.message || err.response.data.error || 'Sunucu hatası';
+                setError(`Giriş başarısız: ${msg}`);
             } else if (err.request) {
-                setError('Network error. Cannot reach backend.');
+                setError('Bağlantı hatası. Sunucuya ulaşılamıyor.');
             } else {
-                setError(`Error: ${err.message}`);
+                setError(`Hata: ${err.message}`);
             }
         }
     };
@@ -43,11 +43,11 @@ const Login = () => {
     return (
         <div className="auth-container">
             <div className="auth-card">
-                <h2>Login</h2>
+                <h2>Giriş Yap</h2>
                 {error && <div className="error-message">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label>Username</label>
+                        <label>Kullanıcı Adı</label>
                         <input
                             type="text"
                             name="userName"
@@ -57,7 +57,7 @@ const Login = () => {
                         />
                     </div>
                     <div className="form-group">
-                        <label>Password</label>
+                        <label>Şifre</label>
                         <input
                             type="password"
                             name="password"
@@ -66,10 +66,10 @@ const Login = () => {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn-primary">Login</button>
+                    <button type="submit" className="btn-primary">Giriş Yap</button>
                 </form>
                 <p className="auth-footer">
-                    Don't have an account? <Link to="/register">Register</Link>
+                    Hesabınız yok mu? <Link to="/register">Kayıt Ol</Link>
                 </p>
             </div>
         </div>
