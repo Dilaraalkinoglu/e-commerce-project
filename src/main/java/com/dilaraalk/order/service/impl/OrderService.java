@@ -69,14 +69,33 @@ public class OrderService implements IOrderService {
 				.collect(Collectors.toList());
 	}
 
+	@Override
+	public CheckoutResponseDto getUserOrderById(Long orderId, Long userId) {
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new IllegalStateException("Sipariş bulunamadı!"));
+
+		if (!order.getUser().getId().equals(userId)) {
+			throw new IllegalStateException("Bu siparişi görüntüleme yetkiniz yok!");
+		}
+
+		return mapToDto(order);
+	}
+
 	private CheckoutResponseDto mapToDto(Order order) {
 		List<OrderItem> items = orderItemRepository.findByOrderId(order.getId());
-		List<OrderItemDto> itemDtos = items.stream().map(oi -> OrderItemDto.builder()
-				.productId(oi.getId())
-				.productName(oi.getProduct().getName())
-				.quantity(oi.getQuantity())
-				.unitPriceSnapshot(oi.getUnitPriceSnapshot())
-				.build()).collect(Collectors.toList());
+		List<OrderItemDto> itemDtos = items.stream().map(oi -> {
+			String imgUrl = null;
+			if (oi.getProduct().getImages() != null && !oi.getProduct().getImages().isEmpty()) {
+				imgUrl = oi.getProduct().getImages().iterator().next().getImageUrl();
+			}
+			return OrderItemDto.builder()
+					.productId(oi.getProduct().getId()) // Fix: should be product ID not order item ID for linking
+					.productName(oi.getProduct().getName())
+					.quantity(oi.getQuantity())
+					.unitPriceSnapshot(oi.getUnitPriceSnapshot())
+					.imageUrl(imgUrl)
+					.build();
+		}).collect(Collectors.toList());
 
 		AddressResponseDto addressDto = null;
 		if (order.getAddress() != null) {

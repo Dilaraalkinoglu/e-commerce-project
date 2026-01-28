@@ -12,13 +12,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class OrderItemDto {
-	
+
 	private Long productId;
-	
-	 private String productName;
-	 
-	 private int quantity;
-	 
-	 private BigDecimal unitPriceSnapshot;
+
+	private String productName;
+
+	private int quantity;
+
+	private BigDecimal unitPriceSnapshot;
+
+	private String imageUrl;
 
 }

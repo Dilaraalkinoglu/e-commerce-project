@@ -14,4 +14,6 @@ public interface IOrderService {
 
 	List<CheckoutResponseDto> getUserOrders(Long userId);
 
+	CheckoutResponseDto getUserOrderById(Long orderId, Long userId);
+
 }

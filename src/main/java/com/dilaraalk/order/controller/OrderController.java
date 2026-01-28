@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,5 +35,13 @@ public class OrderController extends BaseController {
     public ResponseEntity<List<CheckoutResponseDto>> getMyOrders(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ok(orderService.getUserOrders(userDetails.getId()));
+    }
+
+    @Operation(summary = "Get Order by ID", description = "Retrieves a specific order details if it belongs to the user.")
+    @GetMapping("/{id}")
+    public ResponseEntity<CheckoutResponseDto> getOrderById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return ok(orderService.getUserOrderById(id, userDetails.getId()));
     }
 }
