@@ -32,39 +32,49 @@ const AdminOrders = () => {
             fetchOrders();
         } catch (err) {
             console.error(err);
-            alert('Failed to update status');
+            alert('Durum güncellenemedi');
         }
     };
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'PENDING': return '#f59e0b'; // Orange
-            case 'SHIPPED': return '#3b82f6'; // Blue
-            case 'DELIVERED': return '#10b981'; // Green
-            case 'CANCELLED': return '#ef4444'; // Red
-            default: return '#6b7280'; // Gray
+            case 'PENDING': return '#f59e0b'; // Turuncu
+            case 'SHIPPED': return '#3b82f6'; // Mavi
+            case 'DELIVERED': return '#10b981'; // Yeşil
+            case 'CANCELLED': return '#ef4444'; // Kırmızı
+            default: return '#6b7280'; // Gri
         }
     };
 
-    if (loading) return <div>Loading orders...</div>;
+    const getStatusLabel = (status) => {
+        switch (status) {
+            case 'PENDING': return 'Beklemede';
+            case 'SHIPPED': return 'Kargolandı';
+            case 'DELIVERED': return 'Teslim Edildi';
+            case 'CANCELLED': return 'İptal Edildi';
+            default: return status;
+        }
+    };
+
+    if (loading) return <div>Siparişler yükleniyor...</div>;
 
     return (
         <div>
             <div className="admin-header">
-                <h1 className="admin-title">Orders Management</h1>
+                <h1 className="admin-title">Sipariş Yönetimi</h1>
             </div>
 
             <div className="admin-table-container">
                 <table className="admin-table">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Date</th>
-                            <th>Total</th>
-                            <th>Items</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>Sipariş No</th>
+                            <th>Müşteri</th>
+                            <th>Tarih</th>
+                            <th>Tutar</th>
+                            <th>Ürünler</th>
+                            <th>Durum</th>
+                            <th>İşlemler</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,7 +88,7 @@ const AdminOrders = () => {
                                 <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                                 <td>${order.totalPrice.toFixed(2)}</td>
                                 <td>
-                                    {order.items.length} items
+                                    {order.items.length} ürün
                                     <div style={{ fontSize: '0.8rem', color: '#666' }}>
                                         {order.items.map(item => (
                                             <div key={item.productName}>{item.productName} (x{item.quantity})</div>
@@ -94,7 +104,7 @@ const AdminOrders = () => {
                                         fontWeight: 'bold',
                                         fontSize: '0.85rem'
                                     }}>
-                                        {order.status}
+                                        {getStatusLabel(order.status)}
                                     </span>
                                 </td>
                                 <td>
@@ -104,17 +114,17 @@ const AdminOrders = () => {
                                         className="form-select"
                                         style={{ fontSize: '0.9rem', padding: '5px' }}
                                     >
-                                        <option value="PENDING">PENDING</option>
-                                        <option value="SHIPPED">SHIPPED</option>
-                                        <option value="DELIVERED">DELIVERED</option>
-                                        <option value="CANCELLED">CANCELLED</option>
+                                        <option value="PENDING">Beklemede</option>
+                                        <option value="SHIPPED">Kargolandı</option>
+                                        <option value="DELIVERED">Teslim Edildi</option>
+                                        <option value="CANCELLED">İptal Edildi</option>
                                     </select>
                                 </td>
                             </tr>
                         ))}
                         {orders.length === 0 && (
                             <tr>
-                                <td colSpan="7" style={{ textAlign: 'center' }}>No orders found.</td>
+                                <td colSpan="7" style={{ textAlign: 'center' }}>Sipariş bulunamadı.</td>
                             </tr>
                         )}
                     </tbody>

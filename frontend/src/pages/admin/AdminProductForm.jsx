@@ -97,24 +97,24 @@ const AdminProductForm = () => {
             navigate('/admin/products');
         } catch (err) {
             console.error(err);
-            alert('Failed to save product');
+            alert('Ürün kaydedilemedi.');
         } finally {
             setLoading(false);
         }
     };
 
-    if (initialLoading) return <div>Loading...</div>;
+    if (initialLoading) return <div>Yükleniyor...</div>;
 
     return (
         <div>
             <div className="admin-header">
-                <h1 className="admin-title">{isEditing ? 'Edit Product' : 'New Product'}</h1>
+                <h1 className="admin-title">{isEditing ? 'Ürünü Düzenle' : 'Yeni Ürün'}</h1>
             </div>
 
             <div className="admin-form-container">
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label className="form-label">Product Name</label>
+                        <label className="form-label">Ürün Adı</label>
                         <input
                             type="text"
                             name="name"
@@ -126,7 +126,7 @@ const AdminProductForm = () => {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Price</label>
+                        <label className="form-label">Fiyat</label>
                         <input
                             type="number"
                             name="price"
@@ -139,7 +139,7 @@ const AdminProductForm = () => {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Stock</label>
+                        <label className="form-label">Stok</label>
                         <input
                             type="number"
                             name="stock"
@@ -151,7 +151,7 @@ const AdminProductForm = () => {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Description</label>
+                        <label className="form-label">Açıklama</label>
                         <textarea
                             name="description"
                             className="form-textarea"
@@ -161,7 +161,7 @@ const AdminProductForm = () => {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Categories (Hold Ctrl to select multiple)</label>
+                        <label className="form-label">Kategoriler (Çoklu seçim için Ctrl tuşuna basılı tutun)</label>
                         <select
                             multiple
                             className="form-select"
@@ -176,7 +176,7 @@ const AdminProductForm = () => {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Images</label>
+                        <label className="form-label">Resimler</label>
                         <input
                             type="file"
                             multiple
@@ -184,13 +184,13 @@ const AdminProductForm = () => {
                             onChange={handleImageChange}
                             accept="image/*"
                         />
-                        {isEditing && <small>Uploading new images will append to existing ones.</small>}
+                        {isEditing && <small>Yeni resimler mevcut olanların üzerine eklenecektir.</small>}
                     </div>
 
                     <div className="form-actions">
-                        <button type="button" className="btn-cancel" onClick={() => navigate('/admin/products')}>Cancel</button>
+                        <button type="button" className="btn-cancel" onClick={() => navigate('/admin/products')}>İptal</button>
                         <button type="submit" className="btn-save" disabled={loading}>
-                            {loading ? 'Saving...' : 'Save Product'}
+                            {loading ? 'Kaydediliyor...' : 'Kaydet'}
                         </button>
                     </div>
                 </form>

@@ -23,7 +23,7 @@ const AdminCategories = () => {
             setLoading(false);
         } catch (err) {
             console.error(err);
-            setError('Failed to load categories');
+            setError('Kategoriler yüklenemedi');
             setLoading(false);
         }
     };
@@ -45,18 +45,18 @@ const AdminCategories = () => {
             resetForm();
         } catch (err) {
             console.error(err);
-            alert('Failed to save category');
+            alert('Kategori kaydedilemedi.');
         }
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this category?')) {
+        if (window.confirm('Bu kategoriyi silmek istediğinize emin misiniz?')) {
             try {
                 await adminService.deleteCategory(id);
                 fetchCategories();
             } catch (err) {
                 console.error(err);
-                alert('Failed to delete category. It might be in use.');
+                alert('Kategori silinemedi. Kullanılıyor olabilir.');
             }
         }
     };
@@ -77,15 +77,15 @@ const AdminCategories = () => {
         setShowForm(false);
     };
 
-    if (loading && categories.length === 0) return <div>Loading...</div>;
+    if (loading && categories.length === 0) return <div>Yükleniyor...</div>;
 
     return (
         <div>
             <div className="admin-header">
-                <h1 className="admin-title">Categories</h1>
+                <h1 className="admin-title">Kategoriler</h1>
                 {!showForm && (
                     <button className="btn-admin-action" onClick={() => setShowForm(true)}>
-                        + Add Category
+                        + Kategori Ekle
                     </button>
                 )}
             </div>
@@ -94,10 +94,10 @@ const AdminCategories = () => {
 
             {showForm && (
                 <div className="admin-form-container" style={{ marginBottom: '30px' }}>
-                    <h2>{isEditing ? 'Edit Category' : 'New Category'}</h2>
+                    <h2>{isEditing ? 'Kategoriyi Düzenle' : 'Yeni Kategori'}</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="form-group">
-                            <label className="form-label">Category Name</label>
+                            <label className="form-label">Kategori Adı</label>
                             <input
                                 type="text"
                                 className="form-input"
@@ -107,13 +107,13 @@ const AdminCategories = () => {
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Parent Category (Optional)</label>
+                            <label className="form-label">Üst Kategori (Opsiyonel)</label>
                             <select
                                 className="form-select"
                                 value={formData.parentId}
                                 onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
                             >
-                                <option value="">-- None --</option>
+                                <option value="">-- Yok --</option>
                                 {categories
                                     .filter(cat => cat.id !== formData.id) // Don't allow selecting self as parent
                                     .map(cat => (
@@ -123,8 +123,8 @@ const AdminCategories = () => {
                             </select>
                         </div>
                         <div className="form-actions">
-                            <button type="button" className="btn-cancel" onClick={resetForm}>Cancel</button>
-                            <button type="submit" className="btn-save">{isEditing ? 'Update' : 'Create'}</button>
+                            <button type="button" className="btn-cancel" onClick={resetForm}>İptal</button>
+                            <button type="submit" className="btn-save">{isEditing ? 'Güncelle' : 'Oluştur'}</button>
                         </div>
                     </form>
                 </div>
@@ -135,9 +135,9 @@ const AdminCategories = () => {
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
-                            <th>Parent Category</th>
-                            <th>Actions</th>
+                            <th>Ad</th>
+                            <th>Üst Kategori</th>
+                            <th>İşlemler</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -148,15 +148,15 @@ const AdminCategories = () => {
                                 <td>{cat.parentName || '-'}</td>
                                 <td>
                                     <div className="action-buttons">
-                                        <button className="btn-edit" onClick={() => handleEdit(cat)}>Edit</button>
-                                        <button className="btn-delete" onClick={() => handleDelete(cat.id)}>Delete</button>
+                                        <button className="btn-edit" onClick={() => handleEdit(cat)}>Düzenle</button>
+                                        <button className="btn-delete" onClick={() => handleDelete(cat.id)}>Sil</button>
                                     </div>
                                 </td>
                             </tr>
                         ))}
                         {categories.length === 0 && (
                             <tr>
-                                <td colSpan="4" style={{ textAlign: 'center' }}>No categories found.</td>
+                                <td colSpan="4" style={{ textAlign: 'center' }}>Kategori bulunamadı.</td>
                             </tr>
                         )}
                     </tbody>

@@ -69,6 +69,22 @@ const adminService = {
             }
         });
         return response.data;
+    },
+
+    // Metrics
+    getUserMetrics: async () => {
+        const response = await api.get('/admin/metrics/users');
+        return response.data;
+    },
+
+    getProductMetrics: async () => {
+        const response = await api.get('/admin/metrics/products');
+        return response.data;
+    },
+
+    getRequestMetrics: async () => {
+        const response = await api.get('/admin/metrics/requests');
+        return response.data;
     }
 };
 

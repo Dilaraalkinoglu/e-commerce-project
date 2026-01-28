@@ -7,32 +7,53 @@ const AdminLayout = () => {
     const { user, loading } = useAuth();
     const navigate = useNavigate();
 
+    // No longer redirecting in useEffect, but handling it in the render logic
     useEffect(() => {
-        if (!loading && (!user || !user.role || !user.role.includes('ADMIN'))) {
-            navigate('/');
-        }
+        // This useEffect can be removed or kept for other side effects if needed.
+        // For now, it's empty as the access check is handled in the render.
     }, [user, loading, navigate]);
 
-    if (loading) return <div className="loading">Checking permissions...</div>;
+    if (loading) return <div className="loading">Yetkiler kontrol ediliyor...</div>;
 
-    // Double check to prevent flash of content
-    if (!user || (user.role && !user.role.includes('ADMIN') && user.role !== 'ADMIN')) return null;
+    // Show access denied message if user is not an admin
+    if (!user || !user.role || !user.role.includes('ADMIN')) {
+        return (
+            <div style={{ padding: '50px', textAlign: 'center' }}>
+                <h2 style={{ color: '#ef4444' }}>Erişim Reddedildi</h2>
+                <p>Bu sayfayı görüntülemek için yetkiniz bulunmamaktadır.</p>
+                <button
+                    onClick={() => navigate('/')}
+                    style={{
+                        marginTop: '20px',
+                        padding: '10px 20px',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Ana Sayfaya Dön
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="admin-container">
             <aside className="admin-sidebar">
                 <nav>
                     <NavLink to="/admin/dashboard" className={({ isActive }) => `admin-sidebar-link ${isActive ? 'active' : ''}`}>
-                        Dashboard
+                        Kontrol Paneli
                     </NavLink>
                     <NavLink to="/admin/orders" className={({ isActive }) => `admin-sidebar-link ${isActive ? 'active' : ''}`}>
-                        Orders
+                        Siparişler
                     </NavLink>
                     <NavLink to="/admin/products" className={({ isActive }) => `admin-sidebar-link ${isActive ? 'active' : ''}`}>
-                        Products
+                        Ürünler
                     </NavLink>
                     <NavLink to="/admin/categories" className={({ isActive }) => `admin-sidebar-link ${isActive ? 'active' : ''}`}>
-                        Categories
+                        Kategoriler
                     </NavLink>
                 </nav>
             </aside>

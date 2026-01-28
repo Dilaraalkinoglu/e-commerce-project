@@ -29,25 +29,25 @@ const AdminProducts = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm('Are you sure you want to delete this product?')) {
+        if (window.confirm('Bu ürünü silmek istediğinize emin misiniz?')) {
             try {
                 await adminService.deleteProduct(id);
                 fetchProducts();
             } catch (err) {
                 console.error(err);
-                alert('Failed to delete product.');
+                alert('Ürün silinemedi.');
             }
         }
     };
 
-    if (loading && products.length === 0) return <div>Loading...</div>;
+    if (loading && products.length === 0) return <div>Yükleniyor...</div>;
 
     return (
         <div>
             <div className="admin-header">
-                <h1 className="admin-title">Products</h1>
+                <h1 className="admin-title">Ürünler</h1>
                 <button className="btn-admin-action" onClick={() => navigate('/admin/products/new')}>
-                    + Add Product
+                    + Ürün Ekle
                 </button>
             </div>
 
@@ -56,11 +56,11 @@ const AdminProducts = () => {
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Image</th>
-                            <th>Name</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Actions</th>
+                            <th>Resim</th>
+                            <th>Ad</th>
+                            <th>Fiyat</th>
+                            <th>Stok</th>
+                            <th>İşlemler</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,8 +79,8 @@ const AdminProducts = () => {
                                 <td>{product.stock}</td>
                                 <td>
                                     <div className="action-buttons">
-                                        <button className="btn-edit" onClick={() => navigate(`/admin/products/edit/${product.id}`)}>Edit</button>
-                                        <button className="btn-delete" onClick={() => handleDelete(product.id)}>Delete</button>
+                                        <button className="btn-edit" onClick={() => navigate(`/admin/products/edit/${product.id}`)}>Düzenle</button>
+                                        <button className="btn-delete" onClick={() => handleDelete(product.id)}>Sil</button>
                                     </div>
                                 </td>
                             </tr>
@@ -95,15 +95,15 @@ const AdminProducts = () => {
                     onClick={() => setPage(p => p - 1)}
                     className="btn-cancel"
                 >
-                    Previous
+                    Önceki
                 </button>
-                <span>Page {page + 1} of {totalPages}</span>
+                <span>Sayfa {page + 1} / {totalPages}</span>
                 <button
                     disabled={page >= totalPages - 1}
                     onClick={() => setPage(p => p + 1)}
                     className="btn-cancel"
                 >
-                    Next
+                    Sonraki
                 </button>
             </div>
         </div>
