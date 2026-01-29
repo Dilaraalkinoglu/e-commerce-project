@@ -6,7 +6,9 @@ import com.dilaraalk.user.dto.DtoUserRegisterRequest;
 public interface IAuthService {
 
 	void register(DtoUserRegisterRequest request);
-	
+
 	String login(DtoLoginRequest request);
-	
+
+	void forgotPassword(String email);
+
 }

@@ -21,16 +21,23 @@ import lombok.RequiredArgsConstructor;
 public class AuthController extends BaseController {
 
     private final IAuthService authService;
-    
+
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody DtoUserRegisterRequest request) {
         authService.register(request);
         return created("Kayıt başarılı");
     }
-    
+
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody DtoLoginRequest request) {
         String token = authService.login(request);
         return ok(Map.of("token", token));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        authService.forgotPassword(email);
+        return ok("Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.");
     }
 }

@@ -13,24 +13,24 @@ import jakarta.mail.MessagingException;
 
 @Component
 public class PasswordResetListener {
-	
+
 	private final EmailService emailService;
 	private final SpringTemplateEngine templateEngine;
-	
+
 	public PasswordResetListener(EmailService emailService,
 			SpringTemplateEngine templateEngine) {
 		this.emailService = emailService;
 		this.templateEngine = templateEngine;
 	}
-	
+
 	@Async
 	@EventListener
-	public void handlePasswordReset(PasswordResetEvent event) throws MessagingException{
+	public void handlePasswordReset(PasswordResetEvent event) throws MessagingException {
 		Context context = new Context();
 		context.setVariable("userName", event.getUserName());
 		context.setVariable("resetLink", event.getResetLink());
-		
-		String body = templateEngine.process("password-reset.html", context);
+
+		String body = templateEngine.process("password-reset", context);
 		emailService.sendHtmlMail(event.getEmail(), "Şifre Sıfırlama Talebi", body);
 	}
 

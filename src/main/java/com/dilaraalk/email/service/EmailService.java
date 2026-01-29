@@ -16,18 +16,20 @@ import jakarta.mail.internet.MimeMessage;
 public class EmailService {
 
     private final JavaMailSender mailSender;
-    
+
     @Async
-    public void sendHtmlMail(String to,String subject,String body) throws MessagingException{
-    	MimeMessage message = mailSender.createMimeMessage();
-    	MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-    	helper.setTo(to);
-    	helper.setSubject(subject);
-    	helper.setText(body, true);
-    	mailSender.send(message);
+    public void sendHtmlMail(String to, String subject, String body) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setTo(to);
+        helper.setFrom(from);
+        helper.setSubject(subject);
+        helper.setText(body, true);
+        mailSender.send(message);
     }
-    
-    @Value("${app.mail.from}") String from;
+
+    @Value("${app.mail.from}")
+    String from;
 
     public void sendText(String to, String subject, String body) {
         SimpleMailMessage msg = new SimpleMailMessage();
@@ -38,5 +40,3 @@ public class EmailService {
         mailSender.send(msg);
     }
 }
-
-

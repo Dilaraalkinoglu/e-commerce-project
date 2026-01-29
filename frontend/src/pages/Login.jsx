@@ -68,6 +68,9 @@ const Login = () => {
                     </div>
                     <button type="submit" className="btn-primary">Giriş Yap</button>
                 </form>
+                <div style={{ marginTop: '15px', textAlign: 'center' }}>
+                    <Link to="/forgot-password" style={{ fontSize: '0.9rem', color: '#666' }}>Şifremi Unuttum</Link>
+                </div>
                 <p className="auth-footer">
                     Hesabınız yok mu? <Link to="/register">Kayıt Ol</Link>
                 </p>
