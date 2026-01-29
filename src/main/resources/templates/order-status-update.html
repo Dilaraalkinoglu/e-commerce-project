@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Sipariş Durumu Güncellendi</title>
+</head>
+
+<body>
+    <h2>Merhaba <span th:text="${customerName}">Müşteri</span>,</h2>
+    <p>Siparişinizin durumu güncellendi.</p>
+    <ul>
+        <li>Sipariş No: <span th:text="${orderNumber}">12345</span></li>
+        <li>Yeni Durum: <strong><span th:text="${newStatus}">Kargoya Verildi</span></strong></li>
+    </ul>
+    <p>Sipariş detaylarınıza hesabınızdan ulaşabilirsiniz.</p>
+    <p>Bizi tercih ettiğiniz için teşekkürler!</p>
+</body>
+
+</html>

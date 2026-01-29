@@ -16,13 +16,15 @@ class OrderServiceTest {
 
     private OrderRepository orderRepository;
     private OrderItemRepository orderItemRepository;
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
     private OrderService orderService;
 
     @BeforeEach
     void setUp() {
         orderRepository = mock(OrderRepository.class);
         orderItemRepository = mock(OrderItemRepository.class);
-        orderService = new OrderService(orderRepository, orderItemRepository);
+        eventPublisher = mock(org.springframework.context.ApplicationEventPublisher.class);
+        orderService = new OrderService(orderRepository, orderItemRepository, eventPublisher);
     }
 
     @Test
@@ -30,6 +32,12 @@ class OrderServiceTest {
         Order order = new Order();
         order.setId(1L);
         order.setStatus(OrderStatus.PENDING);
+
+        com.dilaraalk.user.entity.User user = new com.dilaraalk.user.entity.User();
+        user.setId(1L);
+        user.setUserName("testuser");
+        user.setEmail("test@test.com");
+        order.setUser(user);
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(orderRepository.save(order)).thenReturn(order);
@@ -49,4 +57,3 @@ class OrderServiceTest {
                 () -> orderService.updateOrderStatus(1L, "INVALID"));
     }
 }
-

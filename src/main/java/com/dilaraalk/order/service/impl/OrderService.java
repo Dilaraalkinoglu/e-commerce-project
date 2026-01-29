@@ -12,6 +12,8 @@ import com.dilaraalk.order.entity.Order;
 import com.dilaraalk.order.entity.OrderItem;
 import com.dilaraalk.order.entity.OrderStatus;
 import com.dilaraalk.order.repository.OrderItemRepository;
+import com.dilaraalk.email.event.OrderStatusChangedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import com.dilaraalk.order.repository.OrderRepository;
 import com.dilaraalk.order.service.IOrderService;
 
@@ -25,6 +27,7 @@ public class OrderService implements IOrderService {
 
 	private final OrderRepository orderRepository;
 	private final OrderItemRepository orderItemRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Override
 	public List<CheckoutResponseDto> getAllOrders() {
@@ -54,6 +57,13 @@ public class OrderService implements IOrderService {
 
 		order.setStatus(newStatus);
 		orderRepository.save(order);
+
+		eventPublisher.publishEvent(new OrderStatusChangedEvent(
+				this,
+				order.getUser().getEmail(),
+				order.getUser().getUserName(),
+				order.getId().toString(),
+				order.getStatus().name()));
 
 		return mapToDto(order);
 	}
