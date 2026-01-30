@@ -12,6 +12,8 @@ import com.dilaraalk.user.entity.User;
 import com.dilaraalk.user.repository.UserRepository;
 import com.dilaraalk.user.service.IAuthService;
 import com.dilaraalk.user.util.JwtUtil;
+import com.dilaraalk.user.service.RefreshTokenService;
+import com.dilaraalk.user.dto.JwtResponse;
 import com.dilaraalk.email.event.PasswordResetEvent;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -24,6 +26,7 @@ public class AuthServiceImpl implements IAuthService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
+	private final RefreshTokenService refreshTokenService;
 	private final ApplicationEventPublisher eventPublisher;
 
 	@Override
@@ -45,7 +48,7 @@ public class AuthServiceImpl implements IAuthService {
 	}
 
 	@Override
-	public String login(DtoLoginRequest request) {
+	public JwtResponse login(DtoLoginRequest request) {
 
 		Optional<User> optionalUser = userRepository.findByUserName(request.getUserName());
 		if (!optionalUser.isPresent()) {
@@ -58,7 +61,17 @@ public class AuthServiceImpl implements IAuthService {
 			throw new RuntimeException("Şifre hatalı!");
 		}
 
-		return jwtUtil.generateToken(user.getUserName(), user.getRoles());
+		String jwt = jwtUtil.generateToken(user.getUserName(), user.getRoles());
+		com.dilaraalk.user.entity.RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+
+		return JwtResponse.builder()
+				.accessToken(jwt)
+				.refreshToken(refreshToken.getToken())
+				.id(user.getId())
+				.username(user.getUserName())
+				.email(user.getEmail())
+				.role(user.getRoles().isEmpty() ? null : user.getRoles().get(0))
+				.build();
 	}
 
 	@Override
@@ -78,6 +91,21 @@ public class AuthServiceImpl implements IAuthService {
 				user.getEmail(),
 				user.getUserName(),
 				resetLink));
+	}
+
+	@Override
+	public com.dilaraalk.user.dto.TokenRefreshResponse refreshToken(
+			com.dilaraalk.user.dto.TokenRefreshRequest request) {
+		String requestRefreshToken = request.getRefreshToken();
+
+		return refreshTokenService.findByToken(requestRefreshToken)
+				.map(refreshTokenService::verifyExpiration)
+				.map(com.dilaraalk.user.entity.RefreshToken::getUser)
+				.map(user -> {
+					String token = jwtUtil.generateToken(user.getUserName(), user.getRoles());
+					return new com.dilaraalk.user.dto.TokenRefreshResponse(token, requestRefreshToken);
+				})
+				.orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
 	}
 
 }

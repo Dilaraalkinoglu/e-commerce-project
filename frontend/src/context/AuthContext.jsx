@@ -43,9 +43,11 @@ export const AuthProvider = ({ children }) => {
 
         // We will verify this structure later. For now let's store response.data.token if object, or response.data if string.
         const token = response.data.token || response.data.accessToken || Object.values(response.data)[0];
+        const refreshToken = response.data.refreshToken;
 
         if (token) {
             localStorage.setItem('token', token);
+            if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
             await checkUserLoggedIn();
             return true;
         }
@@ -60,6 +62,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         setUser(null);
     };
 

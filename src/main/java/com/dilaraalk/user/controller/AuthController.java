@@ -1,6 +1,9 @@
 package com.dilaraalk.user.controller;
 
 import java.util.Map;
+import com.dilaraalk.user.dto.JwtResponse;
+import com.dilaraalk.user.dto.TokenRefreshRequest;
+import com.dilaraalk.user.dto.TokenRefreshResponse;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,9 +32,13 @@ public class AuthController extends BaseController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody DtoLoginRequest request) {
-        String token = authService.login(request);
-        return ok(Map.of("token", token));
+    public ResponseEntity<JwtResponse> login(@RequestBody DtoLoginRequest request) {
+        return ok(authService.login(request));
+    }
+
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<TokenRefreshResponse> refreshToken(@RequestBody TokenRefreshRequest request) {
+        return ok(authService.refreshToken(request));
     }
 
     @PostMapping("/forgot-password")

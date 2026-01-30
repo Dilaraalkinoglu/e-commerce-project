@@ -20,126 +20,135 @@ import static org.mockito.Mockito.*;
 
 class AuthServiceImplTest {
 
-    @Mock
-    private UserRepository userRepository;
+        @Mock
+        private UserRepository userRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+        @Mock
+        private PasswordEncoder passwordEncoder;
 
-    @Mock
-    private JwtUtil jwtUtil;
+        @Mock
+        private JwtUtil jwtUtil;
 
-    @InjectMocks
-    private AuthServiceImpl authService;
+        @Mock
+        private com.dilaraalk.user.service.RefreshTokenService refreshTokenService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+        @Mock
+        private org.springframework.context.ApplicationEventPublisher eventPublisher;
 
-    @Test
-    void register_ShouldSaveNewUser_WhenUsernameNotExists() {
-        // arrange
-        DtoUserRegisterRequest request = new DtoUserRegisterRequest();
-        request.setUserName("dilara");
-        request.setPassword("12345");
+        @InjectMocks
+        private AuthServiceImpl authService;
 
-        when(userRepository.findByUserName("dilara")).thenReturn(Optional.empty());
-        when(passwordEncoder.encode("12345")).thenReturn("encodedPass");
+        @BeforeEach
+        void setUp() {
+                MockitoAnnotations.openMocks(this);
+        }
 
-        // act
-        authService.register(request);
+        @Test
+        void register_ShouldSaveNewUser_WhenUsernameNotExists() {
+                // arrange
+                DtoUserRegisterRequest request = new DtoUserRegisterRequest();
+                request.setUserName("dilara");
+                request.setPassword("12345");
 
-        // assert
-        verify(userRepository).save(argThat(user ->
-                user.getUserName().equals("dilara") &&
-                user.getPassword().equals("encodedPass") &&
-                user.getRoles().contains("ROLE_USER")
-        ));
-    }
+                when(userRepository.findByUserName("dilara")).thenReturn(Optional.empty());
+                when(passwordEncoder.encode("12345")).thenReturn("encodedPass");
 
-    @Test
-    void register_ShouldThrowException_WhenUsernameAlreadyExists() {
-        // arrange
-        DtoUserRegisterRequest request = new DtoUserRegisterRequest();
-        request.setUserName("dilara");
-        request.setPassword("12345");
+                // act
+                authService.register(request);
 
-        when(userRepository.findByUserName("dilara"))
-                .thenReturn(Optional.of(new User()));
+                // assert
+                verify(userRepository).save(argThat(user -> user.getUserName().equals("dilara") &&
+                                user.getPassword().equals("encodedPass") &&
+                                user.getRoles().contains("ROLE_USER")));
+        }
 
-        // act & assert
-        RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> authService.register(request));
+        @Test
+        void register_ShouldThrowException_WhenUsernameAlreadyExists() {
+                // arrange
+                DtoUserRegisterRequest request = new DtoUserRegisterRequest();
+                request.setUserName("dilara");
+                request.setPassword("12345");
 
-        assertEquals("Kullanıcı zaten var", ex.getMessage());
-        verify(userRepository, never()).save(any());
-    }
+                when(userRepository.findByUserName("dilara"))
+                                .thenReturn(Optional.of(new User()));
 
-    @Test
-    void login_ShouldReturnToken_WhenCredentialsValid() {
-        // arrange
-        DtoLoginRequest request = new DtoLoginRequest();
-        request.setUserName("dilara");
-        request.setPassword("12345");
+                // act & assert
+                RuntimeException ex = assertThrows(RuntimeException.class,
+                                () -> authService.register(request));
 
-        User user = new User();
-        user.setUserName("dilara");
-        user.setPassword("encodedPass");
-        user.setRoles(List.of("ROLE_USER"));
+                assertEquals("Kullanıcı zaten var", ex.getMessage());
+                verify(userRepository, never()).save(any());
+        }
 
-        when(userRepository.findByUserName("dilara"))
-                .thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("12345", "encodedPass"))
-                .thenReturn(true);
-        when(jwtUtil.generateToken("dilara", List.of("ROLE_USER")))
-                .thenReturn("jwt-token");
+        @Test
+        void login_ShouldReturnToken_WhenCredentialsValid() {
+                // arrange
+                DtoLoginRequest request = new DtoLoginRequest();
+                request.setUserName("dilara");
+                request.setPassword("12345");
 
-        // act
-        String token = authService.login(request);
+                User user = new User();
+                user.setUserName("dilara");
+                user.setPassword("encodedPass");
+                user.setRoles(List.of("ROLE_USER"));
 
-        // assert
-        assertEquals("jwt-token", token);
-    }
+                when(userRepository.findByUserName("dilara"))
+                                .thenReturn(Optional.of(user));
+                when(passwordEncoder.matches("12345", "encodedPass"))
+                                .thenReturn(true);
+                when(jwtUtil.generateToken(anyString(), anyList()))
+                                .thenReturn("jwt-token");
 
-    @Test
-    void login_ShouldThrowException_WhenUserNotFound() {
-        // arrange
-        DtoLoginRequest request = new DtoLoginRequest();
-        request.setUserName("unknown");
-        request.setPassword("12345");
+                com.dilaraalk.user.entity.RefreshToken mockRefreshToken = new com.dilaraalk.user.entity.RefreshToken();
+                mockRefreshToken.setToken("refresh-token");
+                when(refreshTokenService.createRefreshToken(anyLong())).thenReturn(mockRefreshToken);
 
-        when(userRepository.findByUserName("unknown"))
-                .thenReturn(Optional.empty());
+                // act
+                com.dilaraalk.user.dto.JwtResponse response = authService.login(request);
 
-        // act & assert
-        RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> authService.login(request));
+                // assert
+                assertEquals("jwt-token", response.getAccessToken());
+                assertEquals("refresh-token", response.getRefreshToken());
+        }
 
-        assertEquals("Kullanıcı bulunamadı!", ex.getMessage());
-    }
+        @Test
+        void login_ShouldThrowException_WhenUserNotFound() {
+                // arrange
+                DtoLoginRequest request = new DtoLoginRequest();
+                request.setUserName("unknown");
+                request.setPassword("12345");
 
-    @Test
-    void login_ShouldThrowException_WhenPasswordIncorrect() {
-        // arrange
-        DtoLoginRequest request = new DtoLoginRequest();
-        request.setUserName("dilara");
-        request.setPassword("wrong");
+                when(userRepository.findByUserName("unknown"))
+                                .thenReturn(Optional.empty());
 
-        User user = new User();
-        user.setUserName("dilara");
-        user.setPassword("encodedPass");
-        user.setRoles(List.of("ROLE_USER"));
+                // act & assert
+                RuntimeException ex = assertThrows(RuntimeException.class,
+                                () -> authService.login(request));
 
-        when(userRepository.findByUserName("dilara"))
-                .thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("wrong", "encodedPass"))
-                .thenReturn(false);
+                assertEquals("Kullanıcı bulunamadı!", ex.getMessage());
+        }
 
-        // act & assert
-        RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> authService.login(request));
+        @Test
+        void login_ShouldThrowException_WhenPasswordIncorrect() {
+                // arrange
+                DtoLoginRequest request = new DtoLoginRequest();
+                request.setUserName("dilara");
+                request.setPassword("wrong");
 
-        assertEquals("Şifre hatalı!", ex.getMessage());
-    }
+                User user = new User();
+                user.setUserName("dilara");
+                user.setPassword("encodedPass");
+                user.setRoles(List.of("ROLE_USER"));
+
+                when(userRepository.findByUserName("dilara"))
+                                .thenReturn(Optional.of(user));
+                when(passwordEncoder.matches("wrong", "encodedPass"))
+                                .thenReturn(false);
+
+                // act & assert
+                RuntimeException ex = assertThrows(RuntimeException.class,
+                                () -> authService.login(request));
+
+                assertEquals("Şifre hatalı!", ex.getMessage());
+        }
 }

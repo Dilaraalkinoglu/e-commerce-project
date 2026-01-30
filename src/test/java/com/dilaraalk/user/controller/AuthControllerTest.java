@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Map;
+import com.dilaraalk.user.dto.JwtResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -46,14 +46,17 @@ class AuthControllerTest {
     void login_ShouldReturnTokenInResponse() {
         // arrange
         DtoLoginRequest request = new DtoLoginRequest();
-        when(authService.login(request)).thenReturn("jwt-token");
+        JwtResponse mockResponse = new JwtResponse();
+        mockResponse.setAccessToken("jwt-token");
+
+        when(authService.login(request)).thenReturn(mockResponse);
 
         // act
-        ResponseEntity<Map<String, String>> response = authController.login(request);
+        ResponseEntity<JwtResponse> response = authController.login(request);
 
         // assert
         verify(authService).login(request);
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals("jwt-token", response.getBody().get("token"));
+        assertEquals("jwt-token", response.getBody().getAccessToken());
     }
 }
