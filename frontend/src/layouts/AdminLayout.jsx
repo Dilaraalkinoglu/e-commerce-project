@@ -55,6 +55,9 @@ const AdminLayout = () => {
                     <NavLink to="/admin/categories" className={({ isActive }) => `admin-sidebar-link ${isActive ? 'active' : ''}`}>
                         Kategoriler
                     </NavLink>
+                    <NavLink to="/admin/coupons" className={({ isActive }) => `admin-sidebar-link ${isActive ? 'active' : ''}`}>
+                        Kuponlar
+                    </NavLink>
                 </nav>
             </aside>
             <main className="admin-content">

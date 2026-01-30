@@ -34,22 +34,23 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class CheckoutServiceImpl implements ICheckoutService{
-	
-    private final CartRepository cartRepository;
-    private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
-    private final AddressRepository addressRepository;
-    private final PaymentRepository paymentRepository;
+public class CheckoutServiceImpl implements ICheckoutService {
+
+	private final CartRepository cartRepository;
+	private final OrderRepository orderRepository;
+	private final OrderItemRepository orderItemRepository;
+	private final AddressRepository addressRepository;
+	private final PaymentRepository paymentRepository;
 	private final PaymentService paymentService;
+	private final com.dilaraalk.coupon.service.CouponService couponService;
 	private final ApplicationEventPublisher eventPublisher;
-    
-	//uygulama restartında sıfırlanır 
+
+	// uygulama restartında sıfırlanır
 	private final ConcurrentHashMap<String, Long> idempotencyStore = new ConcurrentHashMap<>();
-	
+
 	@Override
 	public CheckoutResponseDto checkout(User user, CheckoutRequestDto request, String idempotencyKey) {
-		
+
 		// Idempotency kontrol: aynı key geldiyse önceki order'ı döndür
 		if (idempotencyKey != null && idempotencyStore.containsKey(idempotencyKey)) {
 			Long existingOrderId = idempotencyStore.get(idempotencyKey);
@@ -57,61 +58,71 @@ public class CheckoutServiceImpl implements ICheckoutService{
 					.orElseThrow(() -> new IllegalStateException("Sipariş bulunamadı"));
 			return buildResponse(existingOrder, orderItemRepository.findByOrderId(existingOrderId));
 		}
-		
+
 		// sepetten siparişi al
 		Cart cart = cartRepository.findByUser(user)
 				.orElseThrow(() -> new IllegalStateException("Sepet boş"));
-		
+
 		if (cart.getItems().isEmpty()) {
 			throw new IllegalStateException("Sepet boş");
 		}
-		 
-		
+
 		// adresi baglama
 		Address address = addressRepository.findById(request.getAddressId())
 				.orElseThrow(() -> new IllegalStateException("Adres bulunamadı"));
-		
-		
-		// order olusturma 
+
+		// order olusturma
 		Order order = new Order();
 		order.setUser(user);
 		order.setStatus(OrderStatus.PENDING);
 		order.setAddress(address);
 		order.setCreatedAt(LocalDateTime.now());
-		
+
 		orderRepository.save(order);
-		
-		// CartItem - OrderItem + stok dogrulama ve düşüm 
-		List<OrderItem> orderItems = cart.getItems().stream().map(ci-> {
-			
-			//stok kontrol
+
+		// CartItem - OrderItem + stok dogrulama ve düşüm
+		List<OrderItem> orderItems = cart.getItems().stream().map(ci -> {
+
+			// stok kontrol
 			if (ci.getQuantity() > ci.getProduct().getStock()) {
 				throw new IllegalStateException("Yeterli stok yok: " + ci.getProduct().getName());
 			}
-			
+
 			OrderItem oi = new OrderItem();
 			oi.setOrder(order);
 			oi.setProduct(ci.getProduct());
 			oi.setQuantity(ci.getQuantity());
 			oi.setUnitPriceSnapshot(ci.getProduct().getPrice());
-			
+
 			// stok düşümü
 			ci.getProduct().setStock(ci.getProduct().getStock() - ci.getQuantity());
-			
+
 			return oi;
-			
+
 		}).collect(Collectors.toList());
-		
+
 		orderItemRepository.saveAll(orderItems);
-		
-		// toplam fiyatı hesapla ve order'a yaz
+
+		// toplam fiyatı hesapla
 		BigDecimal total = orderItems.stream()
 				.map(oi -> oi.getUnitPriceSnapshot().multiply(BigDecimal.valueOf(oi.getQuantity())))
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		// Kupon varsa indirimi uygula
+		if (request.getCouponCode() != null && !request.getCouponCode().isEmpty()) {
+			BigDecimal discount = couponService.calculateDiscount(request.getCouponCode(), cart);
+			total = total.subtract(discount);
+
+			// Toplam tutar negatif olamaz
+			if (total.compareTo(BigDecimal.ZERO) < 0) {
+				total = BigDecimal.ZERO;
+			}
+		}
+
 		order.setTotalPrice(total);
 		orderRepository.save(order);
-		
-		//fake ödeme
+
+		// fake ödeme
 		paymentService.processPayment(order.getId(), request.getPaymentMethod());
 		Payment payment = Payment.builder()
 				.order(order)
@@ -120,37 +131,38 @@ public class CheckoutServiceImpl implements ICheckoutService{
 				.createdAt(LocalDateTime.now())
 				.build();
 		paymentRepository.save(payment);
-		
+
 		// ödeme başarılı (PAID)
 		order.setStatus(OrderStatus.PAID);
 		orderRepository.save(order);
-		
+
+		// Kupon kullanıldı işaretle
+		if (request.getCouponCode() != null && !request.getCouponCode().isEmpty()) {
+			couponService.useCoupon(request.getCouponCode());
+		}
+
 		// event fırlat
 		eventPublisher.publishEvent(new OrderConfirmedEvent(
-		        this, // source
-		        user.getEmail(), // müşteri e-mail
-		        user.getUserName(),  // müşteri adı
-		        order.getId().toString(), // sipariş numarası
-		        order.getCreatedAt().toLocalDate().toString(), // sipariş tarihi
-		        order.getTotalPrice().toString() // toplam tutar
+				this, // source
+				user.getEmail(), // müşteri e-mail
+				user.getUserName(), // müşteri adı
+				order.getId().toString(), // sipariş numarası
+				order.getCreatedAt().toLocalDate().toString(), // sipariş tarihi
+				order.getTotalPrice().toString() // toplam tutar
 		));
 
-
-
-		
 		// Idempotency kaydet
 		if (idempotencyKey != null) {
 			idempotencyStore.put(idempotencyKey, order.getId());
 		}
-		
+
 		// sepeti temizle
 		cart.getItems().clear();
 		cartRepository.save(cart);
-		
 
-        return buildResponse(order, orderItems);
-    }
-	
+		return buildResponse(order, orderItems);
+	}
+
 	private CheckoutResponseDto buildResponse(Order order, List<OrderItem> orderItems) {
 		List<OrderItemDto> items = orderItems.stream()
 				.map(oi -> OrderItemDto.builder()
@@ -160,20 +172,19 @@ public class CheckoutServiceImpl implements ICheckoutService{
 						.unitPriceSnapshot(oi.getUnitPriceSnapshot())
 						.build())
 				.collect(Collectors.toList());
-		
+
 		Address address = order.getAddress();
 		AddressResponseDto addressDto = AddressResponseDto.builder()
-		        .id(address.getId())
-		        .title(address.getTitle())
-		        .addressLine(address.getAddressLine())
-		        .city(address.getCity())
-		        .state(address.getState())
-		        .postalCode(address.getPostalCode())
-		        .country(address.getCountry())
-		        .defaultAddress(address.isDefaultAddress())
-		        .build();
+				.id(address.getId())
+				.title(address.getTitle())
+				.addressLine(address.getAddressLine())
+				.city(address.getCity())
+				.state(address.getState())
+				.postalCode(address.getPostalCode())
+				.country(address.getCountry())
+				.defaultAddress(address.isDefaultAddress())
+				.build();
 
-		
 		return CheckoutResponseDto.builder()
 				.orderId(order.getId())
 				.createdAt(order.getCreatedAt())
@@ -182,10 +193,19 @@ public class CheckoutServiceImpl implements ICheckoutService{
 				.items(items)
 				.address(addressDto)
 				.build();
-		
-		
+
 	}
 
+	@Override
+	public BigDecimal validateCoupon(User user, String code) {
+		Cart cart = cartRepository.findByUser(user)
+				.orElseThrow(() -> new IllegalStateException("Sepet bulunamadı"));
 
+		if (cart.getItems().isEmpty()) {
+			throw new IllegalStateException("Sepet boş, kupon uygulanamaz.");
+		}
+
+		return couponService.calculateDiscount(code, cart);
+	}
 
 }

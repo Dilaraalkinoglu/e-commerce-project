@@ -12,11 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CheckoutRequestDto {
-	
+
 	@NotNull(message = "Adres seçimi zorunludur")
 	private Long addressId;
-	
+
 	@NotBlank(message = "Ödeme yöntemi boş olamaz")
 	private String paymentMethod;
+
+	private String couponCode;
 
 }

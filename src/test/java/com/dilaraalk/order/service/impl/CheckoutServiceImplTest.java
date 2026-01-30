@@ -34,6 +34,7 @@ class CheckoutServiceImplTest {
     private AddressRepository addressRepository;
     private PaymentRepository paymentRepository;
     private PaymentService paymentService;
+    private com.dilaraalk.coupon.service.CouponService couponService;
     private ApplicationEventPublisher eventPublisher;
 
     private CheckoutServiceImpl checkoutService;
@@ -46,12 +47,12 @@ class CheckoutServiceImplTest {
         addressRepository = mock(AddressRepository.class);
         paymentRepository = mock(PaymentRepository.class);
         paymentService = mock(PaymentService.class);
+        couponService = mock(com.dilaraalk.coupon.service.CouponService.class);
         eventPublisher = mock(ApplicationEventPublisher.class);
 
         checkoutService = new CheckoutServiceImpl(
                 cartRepository, orderRepository, orderItemRepository,
-                addressRepository, paymentRepository, paymentService, eventPublisher
-        );
+                addressRepository, paymentRepository, paymentService, couponService, eventPublisher);
     }
 
     @Test
@@ -121,7 +122,6 @@ class CheckoutServiceImplTest {
     void checkout_shouldThrowIfCartEmpty() {
         User user = new User();
         when(cartRepository.findByUser(user)).thenReturn(Optional.empty());
-        assertThrows(IllegalStateException.class, () ->
-                checkoutService.checkout(user, new CheckoutRequestDto(), null));
+        assertThrows(IllegalStateException.class, () -> checkoutService.checkout(user, new CheckoutRequestDto(), null));
     }
 }

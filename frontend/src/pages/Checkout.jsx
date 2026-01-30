@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import addressService from '../services/addressService';
 import checkoutService from '../services/checkoutService';
+import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import '../styles/checkout.css';
 
@@ -12,6 +13,9 @@ const Checkout = () => {
     const [paymentMethod, setPaymentMethod] = useState('CREDIT_CARD'); // Default
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [couponCode, setCouponCode] = useState('');
+    const [discount, setDiscount] = useState(0);
+    const [appliedCoupon, setAppliedCoupon] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -36,6 +40,27 @@ const Checkout = () => {
         init();
     }, []);
 
+    const handleApplyCoupon = async () => {
+        if (!couponCode.trim()) return;
+
+        try {
+            const response = await api.get('/checkout/validate-coupon', {
+                params: {
+                    code: couponCode
+                }
+            });
+
+            setDiscount(response.data.discount);
+            setAppliedCoupon(couponCode);
+            alert(`Kupon uygulandı! İndirim: ${response.data.discount} TL`);
+        } catch (err) {
+            console.error(err);
+            setDiscount(0);
+            setAppliedCoupon('');
+            alert('Kupon uygulanamadı: ' + (err.response?.data?.message || err.message));
+        }
+    };
+
     const handleCheckout = async () => {
         if (!selectedAddressId) {
             alert('Lütfen bir teslimat adresi seçin.');
@@ -46,7 +71,8 @@ const Checkout = () => {
         try {
             await checkoutService.checkout({
                 addressId: selectedAddressId,
-                paymentMethod: paymentMethod
+                paymentMethod: paymentMethod,
+                couponCode: appliedCoupon ? appliedCoupon : null
             });
             alert('Sipariş başarıyla alındı!');
             fetchCart(); // Clear cart in context (if backend clears it)
@@ -161,19 +187,64 @@ const Checkout = () => {
                             </div>
                         ))}
 
+                        {discount > 0 && (
+                            <div className="summary-item discount" style={{ color: 'green', fontWeight: 'bold' }}>
+                                <span>İndirim</span>
+                                <span>-${discount.toFixed(2)}</span>
+                            </div>
+                        )}
+
                         <div className="summary-item total">
                             <span>Toplam</span>
-                            <span>${cart.total.toFixed(2)}</span>
+                            <span>${(Math.max(0, cart.total - discount)).toFixed(2)}</span>
                         </div>
-
-                        <button
-                            className="place-order-btn"
-                            onClick={handleCheckout}
-                            disabled={submitting || !selectedAddressId}
-                        >
-                            {submitting ? 'İşleniyor...' : 'Siparişi Onayla'}
-                        </button>
                     </div>
+
+                    <div className="coupon-container" style={{ marginTop: '20px', padding: '15px', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #eee' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '0.9rem' }}>Kupon Kodu</label>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <input
+                                type="text"
+                                value={couponCode}
+                                onChange={(e) => setCouponCode(e.target.value)}
+                                placeholder="Varsa kupon kodunuzu girin"
+                                style={{ flex: 1, padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                            />
+                            <button
+                                onClick={handleApplyCoupon}
+                                disabled={!couponCode || (appliedCoupon === couponCode && discount > 0)}
+                                style={{
+                                    padding: '8px 15px',
+                                    backgroundColor: '#28a745',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    whiteSpace: 'nowrap'
+                                }}
+                            >
+                                Uygula
+                            </button>
+                        </div>
+                        {appliedCoupon && discount > 0 && (
+                            <small style={{ color: 'green', display: 'block', marginTop: '5px' }}>
+                                ✔ {appliedCoupon} kuponu aktif.
+                            </small>
+                        )}
+                        <small style={{ color: '#666', fontSize: '0.8rem', display: 'block', marginTop: '5px' }}>
+                            Kupon indirimi uygulanmış toplam tutar üzerinden işlem yapılacaktır.
+                        </small>
+                    </div>
+
+                    <button
+                        className="place-order-btn"
+                        onClick={handleCheckout}
+                        disabled={submitting || !selectedAddressId}
+                        style={{ marginTop: '20px' }}
+                    >
+                        {submitting ? 'İşleniyor...' : 'Siparişi Onayla'}
+                    </button>
                 </div>
             </div>
         </div>

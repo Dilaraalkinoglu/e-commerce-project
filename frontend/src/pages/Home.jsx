@@ -12,6 +12,7 @@ const Home = () => {
     const [allCategories, setAllCategories] = useState([]); // Store all categories for hierarchical lookup
     const [rootCategories, setRootCategories] = useState([]);
     const [subCategories, setSubCategories] = useState([]);
+    const [activeCoupons, setActiveCoupons] = useState([]); // Aktif kuponları tut
 
     // Filter States
     const [keyword, setKeyword] = useState('');
@@ -31,6 +32,7 @@ const Home = () => {
     useEffect(() => {
         fetchInitialData();
         fetchProducts();
+        fetchActiveCoupons(); // Kuponları çek
     }, []);
 
     // Re-fetch when filters change (debouncing could be added for keyword)
@@ -53,6 +55,15 @@ const Home = () => {
         }
     };
 
+    const fetchActiveCoupons = async () => {
+        try {
+            const res = await api.get('/coupons/active');
+            setActiveCoupons(res.data);
+        } catch (err) {
+            console.error("Kuponlar yüklenemedi", err);
+        }
+    };
+
     const fetchProducts = async () => {
         try {
             setLoading(true);
@@ -65,9 +76,6 @@ const Home = () => {
             params.direction = direction;
             params.size = 20;
 
-            // If no filters are active, we might want to use getAllProducts or just search with empty params
-            // The backend /search endpoints works with empty params too (check backend ProductSpecification)
-
             const data = await productService.searchProducts(params);
             setProducts(data.content); // Page contents
             setLoading(false);
@@ -78,32 +86,68 @@ const Home = () => {
         }
     };
 
+    // Ürün için en avantajlı kuponu bulur
+    const getBestCoupon = (product) => {
+        let bestCoupon = null;
+        let maxDiscountVal = -1;
+
+        activeCoupons.forEach(coupon => {
+            let isApplicable = false;
+
+            const hasCategoryRestriction = coupon.applicableCategoryIds && coupon.applicableCategoryIds.length > 0;
+            const hasProductRestriction = coupon.applicableProductIds && coupon.applicableProductIds.length > 0;
+
+            // Global kupon (hiçbir kısıtlama yok)
+            if (!hasCategoryRestriction && !hasProductRestriction) {
+                isApplicable = true;
+            } else {
+                // Kategori kontrolü
+                if (hasCategoryRestriction && product.categoryIds) {
+                    const match = product.categoryIds.some(catId => coupon.applicableCategoryIds.includes(catId));
+                    if (match) isApplicable = true;
+                }
+
+                // Ürün kontrolü
+                if (hasProductRestriction && coupon.applicableProductIds.includes(product.id)) {
+                    isApplicable = true;
+                }
+            }
+
+            if (isApplicable) {
+                let currentVal = coupon.discountValue;
+                if (coupon.discountType === 'PERCENTAGE') {
+                    currentVal = (product.price * coupon.discountValue) / 100;
+                } else {
+                    currentVal = Math.min(coupon.discountValue, product.price);
+                }
+
+                if (currentVal > maxDiscountVal) {
+                    maxDiscountVal = currentVal;
+                    bestCoupon = coupon;
+                }
+            }
+        });
+
+        return bestCoupon;
+    };
+
     const handleParentCategoryClick = (catId) => {
-        // Find children
         const children = allCategories.filter(c => c.parentId === catId);
 
         if (activeParentCategory === catId) {
-            // If user clicks the same parent category again, clear its active state and subcategories
             setActiveParentCategory(null);
             setSubCategories([]);
-            setSelectedCategory(null); // Clear filter
+            setSelectedCategory(null);
         } else {
             setActiveParentCategory(catId);
             setSubCategories(children);
-            // If it has no children, filter by it immediately. 
-            // If it HAS children, ask user to select child OR filter by parent? 
-            // Usually valid to filter by parent logic depends on backend. 
-            // Let's assume selecting parent filters by parent (backend should handle finding subcat products if implemented, or just exact match).
-            // For now, let's filter by this category.
             setSelectedCategory(catId);
         }
-        // Don't close main menu yet to allow sub-selection? Or maybe close it?
-        // Usually mega menus might stay open or close. Let's keep it open for sub-interaction.
     };
 
     const handleSubCategoryClick = (catId) => {
         setSelectedCategory(catId);
-        setIsCategoryMenuOpen(false); // Close menu on selection
+        setIsCategoryMenuOpen(false);
     };
 
     const clearFilters = () => {
@@ -116,9 +160,6 @@ const Home = () => {
         setSort('createdAt');
         setDirection('DESC');
     };
-
-    // if (loading && products.length === 0) return <div className="loading">Loading products...</div>; // Keep seeing sidebar?
-    // Better to show loading indicator over grid overlay
 
     return (
         <div className="home-container">
@@ -162,7 +203,6 @@ const Home = () => {
                                                 key={cat.id}
                                                 className="root-cat-item"
                                                 onMouseEnter={() => {
-                                                    // Show subcategories on hover
                                                     const children = allCategories.filter(c => c.parentId === cat.id);
                                                     setSubCategories(children);
                                                     setActiveParentCategory(cat.id);
@@ -231,7 +271,7 @@ const Home = () => {
                             )}
                         </div>
 
-                        {/* Sub Category Dropdown - Appears only when a parent category with children is active */}
+                        {/* Sub Category Dropdown */}
                         {subCategories.length > 0 && (
                             <div style={{ display: 'flex', gap: '10px' }}>
                                 <select
@@ -255,9 +295,7 @@ const Home = () => {
                                     ))}
                                 </select>
 
-                                {/* Level 3 Dropdown (New) */}
                                 {(() => {
-                                    // Find if currently selected category has children (i.e. if we selected a Level 2 item)
                                     const selectedL2 = subCategories.find(s => s.id === selectedCategory);
                                     const l3Children = selectedL2 ? allCategories.filter(c => c.parentId === selectedL2.id) : [];
 
@@ -266,7 +304,7 @@ const Home = () => {
                                             <select
                                                 className="filter-select"
                                                 style={{ minWidth: '150px' }}
-                                                value={selectedCategory} // If a child is actually selected, we might need more complex logic, but for now filtering by parent includes children
+                                                value={selectedCategory}
                                                 onChange={(e) => {
                                                     const val = Number(e.target.value);
                                                     if (val !== selectedCategory) {
@@ -331,31 +369,39 @@ const Home = () => {
                 ) : (
                     <section className="product-grid">
                         {products.length === 0 && <div className="no-results">Ürün bulunamadı.</div>}
-                        {products.map((product) => (
-                            <div key={product.id} className="product-card">
-                                <Link to={`/product/${product.id}`} className="product-link">
-                                    <div className="product-image-placeholder">
-                                        {product.images && product.images.length > 0 ? (
-                                            <img src={`${BASE_URL}${product.images[0].imageUrl}`} alt={product.name} />
-                                        ) : (
-                                            <div className="placeholder-img">Resim Yok</div>
-                                        )}
-                                    </div>
-                                </Link>
-                                <div className="product-info">
-                                    <Link to={`/product/${product.id}`} className="product-title-link">
-                                        <h3>{product.name}</h3>
+                        {products.map((product) => {
+                            const coupon = getBestCoupon(product);
+                            return (
+                                <div key={product.id} className="product-card">
+                                    <Link to={`/product/${product.id}`} className="product-link">
+                                        <div className="product-image-placeholder">
+                                            {coupon && (
+                                                <div className="coupon-badge" title={`Kupon Kodu: ${coupon.code}`}>
+                                                    {coupon.discountType === 'PERCENTAGE' ? `%${coupon.discountValue} İndirim` : `${coupon.discountValue} TL İndirim`}
+                                                </div>
+                                            )}
+                                            {product.images && product.images.length > 0 ? (
+                                                <img src={`${BASE_URL}${product.images[0].imageUrl}`} alt={product.name} />
+                                            ) : (
+                                                <div className="placeholder-img">Resim Yok</div>
+                                            )}
+                                        </div>
                                     </Link>
-                                    <p className="price">${product.price.toFixed(2)}</p>
-                                    <button
-                                        className="btn-add-cart"
-                                        onClick={() => addToCart(product.id)}
-                                    >
-                                        Sepete Ekle
-                                    </button>
+                                    <div className="product-info">
+                                        <Link to={`/product/${product.id}`} className="product-title-link">
+                                            <h3>{product.name}</h3>
+                                        </Link>
+                                        <p className="price">${product.price.toFixed(2)}</p>
+                                        <button
+                                            className="btn-add-cart"
+                                            onClick={() => addToCart(product.id)}
+                                        >
+                                            Sepete Ekle
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </section>
                 )}
             </div>

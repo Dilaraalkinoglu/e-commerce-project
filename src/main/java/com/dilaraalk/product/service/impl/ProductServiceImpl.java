@@ -139,8 +139,14 @@ public class ProductServiceImpl implements IProductService {
 							.stream()
 							.map(Category::getName)
 							.collect(Collectors.toList()));
+			dto.setCategoryIds(
+					product.getCategories()
+							.stream()
+							.map(Category::getId)
+							.collect(Collectors.toList()));
 		} else {
 			dto.setCategories(List.of());
+			dto.setCategoryIds(List.of());
 		}
 
 		if (product.getImages() != null) {
