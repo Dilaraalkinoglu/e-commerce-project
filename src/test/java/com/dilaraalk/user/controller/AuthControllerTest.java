@@ -20,6 +20,9 @@ class AuthControllerTest {
     @Mock
     private IAuthService authService;
 
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
     @InjectMocks
     private AuthController authController;
 
@@ -32,9 +35,12 @@ class AuthControllerTest {
     void register_ShouldReturnCreatedMessage() {
         // arrange
         DtoUserRegisterRequest request = new DtoUserRegisterRequest();
+        request.setUserName("testUser"); // Audit log için gerekli
+        jakarta.servlet.http.HttpServletRequest httpRequest = mock(jakarta.servlet.http.HttpServletRequest.class);
+        when(httpRequest.getRemoteAddr()).thenReturn("127.0.0.1");
 
         // act
-        ResponseEntity<String> response = authController.register(request);
+        ResponseEntity<String> response = authController.register(request, httpRequest);
 
         // assert
         verify(authService).register(request);
@@ -46,13 +52,17 @@ class AuthControllerTest {
     void login_ShouldReturnTokenInResponse() {
         // arrange
         DtoLoginRequest request = new DtoLoginRequest();
+        request.setUserName("testUser"); // Audit log için gerekli
+        jakarta.servlet.http.HttpServletRequest httpRequest = mock(jakarta.servlet.http.HttpServletRequest.class);
+        when(httpRequest.getRemoteAddr()).thenReturn("127.0.0.1");
+
         JwtResponse mockResponse = new JwtResponse();
         mockResponse.setAccessToken("jwt-token");
 
         when(authService.login(request)).thenReturn(mockResponse);
 
         // act
-        ResponseEntity<JwtResponse> response = authController.login(request);
+        ResponseEntity<JwtResponse> response = authController.login(request, httpRequest);
 
         // assert
         verify(authService).login(request);
