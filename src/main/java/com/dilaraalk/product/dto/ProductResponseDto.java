@@ -6,7 +6,9 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class ProductResponseDto {
+public class ProductResponseDto implements java.io.Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private Long id;
 

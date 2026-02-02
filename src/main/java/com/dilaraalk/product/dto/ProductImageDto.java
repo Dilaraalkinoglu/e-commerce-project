@@ -7,9 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductImageDto {
-	
+public class ProductImageDto implements java.io.Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private Long id;
-    
+
     private String imageUrl;
 }
