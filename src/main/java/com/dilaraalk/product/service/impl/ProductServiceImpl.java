@@ -46,6 +46,7 @@ public class ProductServiceImpl implements IProductService {
 	}
 
 	@Override
+	@org.springframework.cache.annotation.CacheEvict(value = "products_list", allEntries = true)
 	public ProductResponseDto createProduct(ProductRequestDto productRequestDto) {
 		Product product = toEntity(productRequestDto);
 
@@ -65,6 +66,10 @@ public class ProductServiceImpl implements IProductService {
 	}
 
 	@Override
+	@org.springframework.cache.annotation.Caching(evict = {
+			@org.springframework.cache.annotation.CacheEvict(value = "products", key = "#id"),
+			@org.springframework.cache.annotation.CacheEvict(value = "products_list", allEntries = true)
+	})
 	public ProductResponseDto updateProduct(Long id, ProductRequestDto productRequestDto) {
 
 		Product product = productRepository.findById(id)
@@ -90,6 +95,10 @@ public class ProductServiceImpl implements IProductService {
 	}
 
 	@Override
+	@org.springframework.cache.annotation.Caching(evict = {
+			@org.springframework.cache.annotation.CacheEvict(value = "products", key = "#id"),
+			@org.springframework.cache.annotation.CacheEvict(value = "products_list", allEntries = true)
+	})
 	public void deleteProduct(Long id) {
 
 		Product product = productRepository.findById(id)
@@ -99,6 +108,7 @@ public class ProductServiceImpl implements IProductService {
 	}
 
 	@Override
+	@org.springframework.cache.annotation.Cacheable(value = "products", key = "#id")
 	public ProductResponseDto getProductById(Long id) {
 
 		Product product = productRepository.findById(id)
@@ -108,9 +118,10 @@ public class ProductServiceImpl implements IProductService {
 	}
 
 	@Override
+	@org.springframework.cache.annotation.Cacheable(value = "products_list")
 	public List<ProductResponseDto> getAllProducts() {
 
-		List<Product> productList = productRepository.findAll();
+		List<Product> productList = productRepository.findAllWithRelations();
 
 		if (productList.isEmpty()) {
 			throw new IllegalStateException("Hiç ürün bulunamadı");
