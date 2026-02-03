@@ -1,16 +1,28 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { Link } from 'react-router-dom';
+import api from '../services/api';
 import '../styles/cart.css';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaTicketAlt } from 'react-icons/fa';
 
 const Cart = () => {
     const { cart, removeFromCart, updateQuantity, fetchCart, loading } = useCart();
+    const [activeCoupons, setActiveCoupons] = useState([]);
 
     useEffect(() => {
         fetchCart();
+        fetchActiveCoupons();
     }, []);
+
+    const fetchActiveCoupons = async () => {
+        try {
+            const res = await api.get('/coupons/active');
+            setActiveCoupons(res.data);
+        } catch (err) {
+            console.error("Kuponlar yüklenemedi", err);
+        }
+    };
 
     if (loading) return <div className="loading">Sepet yükleniyor...</div>;
 
@@ -23,6 +35,46 @@ const Cart = () => {
             </div>
         );
     }
+
+    // Sepetteki ürünlere uygun kuponları bul
+    const getApplicableCouponsForCart = () => {
+        if (!cart.items || !activeCoupons.length) return [];
+
+        const applicableSet = new Set();
+        const coupons = [];
+
+        cart.items.forEach(item => {
+            activeCoupons.forEach(coupon => {
+                let isApplicable = false;
+                const hasCategoryRestriction = coupon.applicableCategoryIds && coupon.applicableCategoryIds.length > 0;
+                const hasProductRestriction = coupon.applicableProductIds && coupon.applicableProductIds.length > 0;
+
+                // Simple check: we don't have full product details (like categoryIds) in cart item usually, 
+                // but let's assume we might or we just check product ID restriction if available.
+                // NOTE: Cart item usually has limited info. If we need category check, we might miss it if cart item doesn't have categoryIds.
+                // However, fetching full product details for every cart item might be overkill.
+                // Let's assume for now we check product ID if restriction exists, or if no restriction it's global.
+                // If category restriction exists, we might not be able to validate easily without category info.
+
+                // For better UX, let's list GLOBAL coupons and PRODUCT specific coupons that match.
+
+                if (!hasCategoryRestriction && !hasProductRestriction) {
+                    isApplicable = true;
+                } else if (hasProductRestriction && coupon.applicableProductIds.includes(item.productId)) {
+                    isApplicable = true;
+                }
+                // (Skip category check in cart for simplicity unless we add categoryId to cart items)
+
+                if (isApplicable && !applicableSet.has(coupon.id)) {
+                    applicableSet.add(coupon.id);
+                    coupons.push(coupon);
+                }
+            });
+        });
+        return coupons;
+    };
+
+    const applicableCoupons = getApplicableCouponsForCart();
 
     return (
         <div className="cart-container">
@@ -65,6 +117,22 @@ const Cart = () => {
                 </div>
 
                 <div className="cart-summary">
+                    {applicableCoupons.length > 0 && (
+                        <div className="available-coupons" style={{ marginBottom: '15px', padding: '10px', background: '#f0f4c3', borderRadius: '5px' }}>
+                            <h4 style={{ margin: '0 0 5px 0', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <FaTicketAlt /> Kullanılabilir Kuponlar
+                            </h4>
+                            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                {applicableCoupons.map(coupon => (
+                                    <li key={coupon.id} style={{ fontSize: '0.9rem', marginBottom: '3px' }}>
+                                        <strong>{coupon.code}</strong>:
+                                        {coupon.discountType === 'PERCENTAGE' ? ` %${coupon.discountValue} indirim` : ` ${coupon.discountValue} TL indirim`}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
                     <h3>Sipariş Özeti</h3>
                     <div className="summary-row">
                         <span>Ara Toplam</span>

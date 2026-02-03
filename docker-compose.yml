@@ -51,6 +51,8 @@ services:
     container_name: ecommerce-backend
     ports:
       - "${APP_PORT:-8080}:8080"
+    volumes:
+      - ./uploads:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy

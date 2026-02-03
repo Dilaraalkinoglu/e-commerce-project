@@ -16,40 +16,39 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class CustomUserDetails implements UserDetails, Serializable{
-	
-    private static final long serialVersionUID = 1L;
-	
+public class CustomUserDetails implements UserDetails, Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	private final Long id;
 
 	private final String username;
-	
+
 	private final String password;
-	
+
 	private final String email;
-	
+
 	private final List<GrantedAuthority> authorities;
-	
+
 	public CustomUserDetails(User user) {
 		this.id = user.getId();
 		this.username = user.getUserName();
 		this.password = user.getPassword();
 		this.email = user.getEmail();
-		this.authorities = user.getRoles() == null ? 
-				List.of() :
-					user.getRoles().stream()
-				.map(SimpleGrantedAuthority::new)
-				.collect(Collectors.toList());
+		this.authorities = user.getRoles() == null ? List.of()
+				: user.getRoles().stream()
+						.map(role -> new SimpleGrantedAuthority(role.startsWith("ROLE_") ? role : "ROLE_" + role))
+						.collect(Collectors.toList());
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
-	
+
 	public String getEmail() {
-	    return email;
+		return email;
 	}
-	
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return authorities;
@@ -64,27 +63,25 @@ public class CustomUserDetails implements UserDetails, Serializable{
 	public String getUsername() {
 		return username;
 	}
-	
-    @Override
-    public boolean isAccountNonExpired() { 
-    	return true; 
-    }
 
-    @Override
-    public boolean isAccountNonLocked() {
-    	return true; 
-    }
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-    	return true; 
-    }
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
 
-    @Override
-    public boolean isEnabled() {
-    	return true; 
-    }
-	
-	
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
 
 }

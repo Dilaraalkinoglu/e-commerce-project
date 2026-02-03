@@ -10,8 +10,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // "uploads" klasörünü "/uploads/**" URL'sine eşle
-        // file:uploads/ projenin kök dizinindeki uploads klasörünü işaret eder.
+        // Docker içinde kesin yol: /app/uploads/
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:uploads/");
+                .addResourceLocations("file:/app/uploads/");
     }
 }

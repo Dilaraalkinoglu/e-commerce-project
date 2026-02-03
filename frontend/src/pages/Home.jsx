@@ -381,7 +381,16 @@ const Home = () => {
                                                 </div>
                                             )}
                                             {product.images && product.images.length > 0 ? (
-                                                <img src={`${BASE_URL}${product.images[0].imageUrl}`} alt={product.name} />
+                                                <img
+                                                    src={product.images[0].imageUrl.startsWith('http')
+                                                        ? product.images[0].imageUrl
+                                                        : `${BASE_URL}${product.images[0].imageUrl}`}
+                                                    alt={product.name}
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = 'https://placehold.co/500x500?text=Resim+Yok';
+                                                    }}
+                                                />
                                             ) : (
                                                 <div className="placeholder-img">Resim Yok</div>
                                             )}

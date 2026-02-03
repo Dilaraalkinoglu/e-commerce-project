@@ -18,6 +18,8 @@ const Checkout = () => {
     const [appliedCoupon, setAppliedCoupon] = useState('');
     const navigate = useNavigate();
 
+    const [activeCoupons, setActiveCoupons] = useState([]);
+
     useEffect(() => {
         const init = async () => {
             await fetchCart();
@@ -33,12 +35,48 @@ const Checkout = () => {
                 }
             } catch (err) {
                 console.error("Error fetching addresses", err);
-            } finally {
-                setLoading(false);
             }
+
+            try {
+                const res = await api.get('/coupons/active');
+                setActiveCoupons(res.data);
+            } catch (err) {
+                console.error("Failed to load coupons", err);
+            }
+
+            setLoading(false);
         };
         init();
     }, []);
+
+    const getApplicableCoupons = () => {
+        if (!cart || !cart.items || !activeCoupons.length) return [];
+
+        const applicableSet = new Set();
+        const coupons = [];
+
+        cart.items.forEach(item => {
+            activeCoupons.forEach(coupon => {
+                let isApplicable = false;
+                const hasCategoryRestriction = coupon.applicableCategoryIds && coupon.applicableCategoryIds.length > 0;
+                const hasProductRestriction = coupon.applicableProductIds && coupon.applicableProductIds.length > 0;
+
+                if (!hasCategoryRestriction && !hasProductRestriction) {
+                    isApplicable = true;
+                } else if (hasProductRestriction && coupon.applicableProductIds.includes(item.productId)) {
+                    isApplicable = true;
+                }
+
+                if (isApplicable && !applicableSet.has(coupon.id)) {
+                    applicableSet.add(coupon.id);
+                    coupons.push(coupon);
+                }
+            });
+        });
+        return coupons;
+    };
+
+    const applicableCoupons = getApplicableCoupons();
 
     const handleApplyCoupon = async () => {
         if (!couponCode.trim()) return;
@@ -227,6 +265,26 @@ const Checkout = () => {
                                 Uygula
                             </button>
                         </div>
+
+                        {/* Available Coupons List */}
+                        {applicableCoupons.length > 0 && (
+                            <div style={{ marginTop: '10px', padding: '10px', background: '#fff3cd', borderRadius: '5px', fontSize: '0.85rem', color: '#856404', border: '1px solid #ffeeba' }}>
+                                <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Kullanılabilir Kuponlar:</div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                                    {applicableCoupons.map(c => (
+                                        <span
+                                            key={c.id}
+                                            onClick={() => setCouponCode(c.code)}
+                                            style={{ cursor: 'pointer', background: '#fff', padding: '2px 6px', border: '1px solid #d3d3d3', borderRadius: '3px' }}
+                                            title="Tıkla ve kullan"
+                                        >
+                                            <strong>{c.code}</strong> ({c.discountType === 'PERCENTAGE' ? `%${c.discountValue}` : `${c.discountValue}TL`})
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {appliedCoupon && discount > 0 && (
                             <small style={{ color: 'green', display: 'block', marginTop: '5px' }}>
                                 ✔ {appliedCoupon} kuponu aktif.
