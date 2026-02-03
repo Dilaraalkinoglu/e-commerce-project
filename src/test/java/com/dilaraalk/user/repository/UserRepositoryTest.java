@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import com.dilaraalk.config.TestMailConfig;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -12,7 +13,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataJpaTest(excludeAutoConfiguration = { SecurityAutoConfiguration.class })
 @ActiveProfiles("test")
 @Import(TestMailConfig.class)
 class UserRepositoryTest {
