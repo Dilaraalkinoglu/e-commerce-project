@@ -45,21 +45,21 @@ public abstract class BaseIntegrationTest {
             .withUsername("test")
             .withPassword("test");
 
+    @Container
+    static GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
+            .withExposedPorts(6379);
+
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        // spring'e docker'daki DB'nin dinamik URL'ini bildirir.
+        // PostgreSQL Config
         registry.add("spring.datasource.url", postgress::getJdbcUrl);
         registry.add("spring.datasource.username", postgress::getUsername);
         registry.add("spring.datasource.password", postgress::getPassword);
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
 
-        // Testlerde Redis'e bağlanmaya çalışmaması için Cache'i kapatıyoruz
-        registry.add("spring.cache.type", () -> "none");
-        // Redis host ayarını geçersiz bir yere yönlendirebiliriz veya mevcut
-        // bırakabiliriz,
-        // ama spring.data.redis.repositories.enabled=false yapmak işe yarayabilir.
-        // Ancak en garantisi Testcontainers ile Redis kaldırmaktır.
-        // Şimdilik sadece cache disable yaparak deneyelim.
+        // Redis Config (Artık gerçek bir Redis var!)
+        registry.add("spring.data.redis.host", redis::getHost);
+        registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379));
     }
 
     @Autowired
