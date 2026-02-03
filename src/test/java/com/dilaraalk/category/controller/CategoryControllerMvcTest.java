@@ -2,6 +2,7 @@ package com.dilaraalk.category.controller;
 
 import com.dilaraalk.category.dto.CategoryDto;
 import com.dilaraalk.category.service.ICategoryService;
+import com.dilaraalk.user.repository.UserRepository; // Import eklendi
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -40,6 +41,9 @@ class CategoryControllerMvcTest {
     @MockBean
     private org.springframework.security.core.userdetails.UserDetailsService userDetailsService; // Security bağımlılığı
                                                                                                  // için mock
+
+    @MockBean
+    private UserRepository userRepository; // JwtAuthenticationFilter'ın doğrudan bağımlılığı için mock
 
     @Test
     void getAllCategories_ShouldReturnJsonList_WhenCategoriesExist() throws Exception {
