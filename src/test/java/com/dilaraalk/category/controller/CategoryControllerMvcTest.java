@@ -27,6 +27,9 @@ class CategoryControllerMvcTest {
     @MockBean
     private ICategoryService categoryService;
 
+    @MockBean
+    private com.dilaraalk.common.metrics.MetricService metricService; // MetricFilter bağımlılığı için mock
+
     @Test
     void getAllCategories_ShouldReturnJsonList_WhenCategoriesExist() throws Exception {
         // Arrange
