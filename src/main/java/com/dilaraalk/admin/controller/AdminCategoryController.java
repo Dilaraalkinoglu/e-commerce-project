@@ -20,47 +20,41 @@ import com.dilaraalk.common.base.BaseController;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/admin/categories")
 @RequiredArgsConstructor
-public class AdminCategoryController extends BaseController{
-	
+@PreAuthorize("hasRole('ADMIN')")
+public class AdminCategoryController extends BaseController {
+
 	private final ICategoryService categoryService;
-	
+
 	@GetMapping
-	public ResponseEntity<List<CategoryDto>> getAllCategories(){
+	public ResponseEntity<List<CategoryDto>> getAllCategories() {
 		return ok(categoryService.getAllCategories());
 	}
-	
+
 	@GetMapping("/{id}")
-	public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Long id){
+	public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Long id) {
 		return ok(categoryService.getCategoryById(id));
 	}
-	
+
 	@PostMapping
-	public ResponseEntity<CategoryDto> createCategory(@RequestBody CreateCategoryRequest request){
+	public ResponseEntity<CategoryDto> createCategory(@RequestBody CreateCategoryRequest request) {
 		return created(categoryService.createCategory(request));
 	}
-	
+
 	@PutMapping("/{id}")
 	public ResponseEntity<CategoryDto> updateCategory(@PathVariable Long id,
-			@RequestBody UpdateCategoryRequest request){
+			@RequestBody UpdateCategoryRequest request) {
 		return ok(categoryService.updateCategory(id, request));
 	}
-	
+
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteCategory(@PathVariable Long id){
+	public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
 		categoryService.deleteCategory(id);
 		return noContent();
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 }
