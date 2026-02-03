@@ -12,4 +12,9 @@ public class TestMailConfig {
     public JavaMailSender javaMailSender() {
         return Mockito.mock(JavaMailSender.class);
     }
+
+    @Bean
+    public org.thymeleaf.spring6.SpringTemplateEngine springTemplateEngine() {
+        return Mockito.mock(org.thymeleaf.spring6.SpringTemplateEngine.class);
+    }
 }
