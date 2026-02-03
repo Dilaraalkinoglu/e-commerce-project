@@ -52,6 +52,14 @@ public abstract class BaseIntegrationTest {
         registry.add("spring.datasource.username", postgress::getUsername);
         registry.add("spring.datasource.password", postgress::getPassword);
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
+
+        // Testlerde Redis'e bağlanmaya çalışmaması için Cache'i kapatıyoruz
+        registry.add("spring.cache.type", () -> "none");
+        // Redis host ayarını geçersiz bir yere yönlendirebiliriz veya mevcut
+        // bırakabiliriz,
+        // ama spring.data.redis.repositories.enabled=false yapmak işe yarayabilir.
+        // Ancak en garantisi Testcontainers ile Redis kaldırmaktır.
+        // Şimdilik sadece cache disable yaparak deneyelim.
     }
 
     @Autowired
