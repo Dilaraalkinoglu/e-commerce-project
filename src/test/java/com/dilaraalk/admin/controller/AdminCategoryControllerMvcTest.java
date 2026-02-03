@@ -67,7 +67,7 @@ class AdminCategoryControllerMvcTest {
                 .with(csrf()) // POST isteklerinde CSRF koruması olabilir, testte bypass etmek için
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk()) // Controller ResponseEntity.ok() dönüyor
+                .andExpect(status().isCreated()) // Controller created() dönüyor (201)
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("New Category"));
     }
