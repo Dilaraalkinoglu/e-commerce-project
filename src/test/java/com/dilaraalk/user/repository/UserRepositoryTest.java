@@ -13,10 +13,16 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.springframework.boot.test.mock.mockito.MockBean;
+import com.dilaraalk.user.config.SecurityConfig;
+
 @DataJpaTest(excludeAutoConfiguration = { SecurityAutoConfiguration.class })
 @ActiveProfiles("test")
 @Import(TestMailConfig.class)
 class UserRepositoryTest {
+
+    @MockBean
+    private SecurityConfig securityConfig;
 
     @Autowired
     private UserRepository userRepository;
