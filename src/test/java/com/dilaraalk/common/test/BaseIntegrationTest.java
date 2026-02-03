@@ -17,7 +17,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.GenericContainer;
+
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -46,10 +46,6 @@ public abstract class BaseIntegrationTest {
             .withUsername("test")
             .withPassword("test");
 
-    @Container
-    static GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
-            .withExposedPorts(6379);
-
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         // PostgreSQL Config
@@ -57,10 +53,6 @@ public abstract class BaseIntegrationTest {
         registry.add("spring.datasource.username", postgress::getUsername);
         registry.add("spring.datasource.password", postgress::getPassword);
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
-
-        // Redis Config (Artık gerçek bir Redis var!)
-        registry.add("spring.data.redis.host", redis::getHost);
-        registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379));
     }
 
     @Autowired
