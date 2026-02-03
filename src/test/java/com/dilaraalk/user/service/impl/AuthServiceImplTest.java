@@ -16,6 +16,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 class AuthServiceImplTest {
@@ -88,6 +93,7 @@ class AuthServiceImplTest {
                 request.setPassword("12345");
 
                 User user = new User();
+                user.setId(1L); // ID Atandı!
                 user.setUserName("dilara");
                 user.setPassword("encodedPass");
                 user.setRoles(List.of("ROLE_USER"));
