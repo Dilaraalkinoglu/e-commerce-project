@@ -1,8 +1,7 @@
 package com.dilaraalk.user.service.impl;
 
-
 import static org.junit.jupiter.api.Assertions.*;
-
+import static com.dilaraalk.common.test.TestDataBuilder.aUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +24,8 @@ class UserServiceImplIT extends BaseIntegrationTest {
 
     @BeforeEach
     void setup() {
-        userRepository.deleteAll(); // DB temizleniyor
-
-        testUser = new User();
-        testUser.setUserName("yaman1");
-        testUser.setEmail("yaman1@gmail.com");
-        testUser.setPassword("123456");
+        userRepository.deleteAll();
+        testUser = aUser().withUserName("yaman1").withEmail("yaman1@gmail.com").build();
         userRepository.save(testUser);
     }
 
@@ -57,11 +52,8 @@ class UserServiceImplIT extends BaseIntegrationTest {
     @Test
     void findByUserName_shouldReturnUser() {
         User user = userService.findByUserName(testUser.getUserName()).orElse(null);
-
         assertNotNull(user);
         assertEquals(testUser.getEmail(), user.getEmail());
+
     }
 }
-
-
-
