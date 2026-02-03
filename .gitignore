@@ -49,9 +49,12 @@ application.log
 .DS_Store
 Thumbs.db
 
-# Local config
+# Local config - DİKKAT: .env ve .yml dosyaları commitlenmemeli
 /src/main/resources/application.properties
 /src/main/resources/application.yml
+*.env
+.env
+.env.*
 
 # Others
 *.jar
