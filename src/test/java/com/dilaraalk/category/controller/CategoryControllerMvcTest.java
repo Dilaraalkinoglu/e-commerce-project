@@ -34,6 +34,9 @@ class CategoryControllerMvcTest {
     private com.dilaraalk.common.rateLimiting.RateLimitingService rateLimitingService; // RateLimitFilter bağımlılığı
                                                                                        // için mock
 
+    @MockBean
+    private com.dilaraalk.user.util.JwtUtil jwtUtil; // JwtAuthenticationFilter bağımlılığı için mock
+
     @Test
     void getAllCategories_ShouldReturnJsonList_WhenCategoriesExist() throws Exception {
         // Arrange
